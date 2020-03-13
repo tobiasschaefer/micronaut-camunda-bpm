@@ -1,6 +1,7 @@
 plugins {
     id "net.ltgt.apt-eclipse" version "0.21"
     id "application"
+    id "maven-publish"
 }
 
 version "0.1-SNAPSHOT"
@@ -53,4 +54,39 @@ tasks.withType(JavaExec) {
 java {
     withJavadocJar()
     withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'micronaut-camunda-bpm-feature'
+                description = 'Integration between Micronaut and Camunda BPM Process Engine'
+                url = 'https://github.com/NovatecConsulting/micronaut-camunda-bpm'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'The micronaut-camunda-bpm Team at Novatec Consulting GmbH'
+                        email = 'micronaut-camunda@novatec-gmbh.de'
+                        organization = 'Novatec Consulting GmbH'
+                        organizationUrl = 'https://www.novatec-gmbh.de'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/NovatecConsulting/micronaut-camunda-bpm.git'
+                    developerConnection = 'scm:git:https://github.com/NovatecConsulting/micronaut-camunda-bpm.git'
+                    url = 'https://github.com/NovatecConsulting/micronaut-camunda-bpm'
+                }
+            }
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
 }
