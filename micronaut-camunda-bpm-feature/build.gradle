@@ -90,7 +90,7 @@ publishing {
             url 'https://oss.sonatype.org/content/repositories/snapshots/'
             credentials {
                 username 'micronaut-camunda'
-                password ${{ secrets.OSSRH_PWD }}
+                password "$System.env.OSSRH_PWD"
             }
         }
     }
