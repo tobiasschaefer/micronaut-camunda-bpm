@@ -89,8 +89,8 @@ publishing {
         maven {
             url 'https://oss.sonatype.org/content/repositories/snapshots/'
             credentials {
-                username 'user'
-                password '123456'
+                username 'micronaut-camunda'
+                password ${{ secrets.OSSRH_PWD }}
             }
         }
     }
