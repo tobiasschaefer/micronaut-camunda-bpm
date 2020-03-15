@@ -13,14 +13,17 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: ['8', '11']
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 1.8
+    - name: Git Checkout
+      uses: actions/checkout@v2
+    - name: Set up JDKs with Matrix Build
       uses: actions/setup-java@v1
       with:
-        java-version: 1.8
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build with Gradle
+        java-version: ${{ matrix.java }}
+
+    - name: Build with Gradle Wrapper
       run: ./gradlew build
