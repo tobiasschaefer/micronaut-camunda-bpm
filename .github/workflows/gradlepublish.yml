@@ -29,6 +29,5 @@ jobs:
     # the publishing section of your build.gradle
     - name: Publish to OSSRH
       run: gradle publish
-#      env:
-#       USERNAME: micronaut-camunda
-#        PASSWORD: secret
+      env:
+        OSSRH_PWD: ${{ secrets.OSSRH_PWD }}
