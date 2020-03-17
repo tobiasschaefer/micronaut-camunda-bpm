@@ -20,8 +20,13 @@ jobs:
       with:
         java-version: 1.8
 
+    - name: Extract secring.gpg to sign files
+      run: pwd && echo -n $HW | base64 --decode > myfile.txt && cat myfile.txt && ls -al
+      env:
+        HW: ${{ secrets.HW }}
+
     - name: Build with Gradle Wrapper
-      run: ./gradlew build
+      run: ./gradlewa build
 
     - name: Extract secring.gpg to sign files
       run: pwd && echo -n $HW | base64 --decode > myfile.txt && cat myfile.txt && ls -al
