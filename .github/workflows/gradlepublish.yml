@@ -21,7 +21,8 @@ jobs:
         java-version: 1.8
 
     - name: Build with Gradle Wrapper
-      run: ./gradlew build --warning-mode=fail
+      #run: ./gradlew build --warning-mode=fail
+      run: ./gradlew build
 
     - name: Extract secring.gpg to sign files
       run: echo -n $SECRING_GPG | base64 --decode > secring.gpg && pwd && ls -al
