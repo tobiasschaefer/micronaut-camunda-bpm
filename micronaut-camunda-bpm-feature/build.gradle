@@ -3,7 +3,7 @@ plugins {
     id "maven-publish"
 }
 
-version "0.1-SNAPSHOT"
+version "0.0.1-SNAPSHOT" //This version is set dynamically when publishing the release
 group "info.novatec"
 
 configurations {
