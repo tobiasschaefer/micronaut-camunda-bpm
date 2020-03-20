@@ -36,7 +36,7 @@ jobs:
         echo "Publishing: ${GITHUB_REF}"
         echo "${GITHUB_REF}" | cut -d "/" -f3 | grep --regexp '^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+$'
         echo "bbb"
-        RELEASE_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3) | sed 's/v//')
+        RELEASE_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3 | sed 's/v//')
         echo "New version: ${RELEASE_VERSION}"
         echo "Github username: ${GITHUB_ACTOR}"
         ./gradlew -Pversion=${RELEASE_VERSION} publish
