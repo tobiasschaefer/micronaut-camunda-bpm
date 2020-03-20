@@ -28,7 +28,14 @@ jobs:
       env:
         SECRING_GPG: ${{ secrets.SECRING_GPG }}
 
+    # The GITHUB_REF tag comes in the format 'refs/tags/v0.0.1'. If we split on '/' and take the 3rd value, we can get the release version, e.g. v.0.0.1
+    # We then remove the leading "v", e.g. 0.0.1
     - name: Publish to OSSRH
-      run: ./gradlew publish
+      run: |
+        echo "${RELEASE_VERSION}" | cut -d "/" -f3 | grep --regexp '^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+$'
+        RELEASE_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3) | sed 's/v//'
+        echo "New version: ${RELEASE_VERSION}"
+        echo "Github username: ${GITHUB_ACTOR}"
+        ./gradlew -Pversion=${RELEASE_VERSION} publish
       env:
         OSSRH_PWD: ${{ secrets.OSSRH_PWD }}
