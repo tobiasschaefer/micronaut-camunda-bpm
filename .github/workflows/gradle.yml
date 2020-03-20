@@ -26,6 +26,4 @@ jobs:
         java-version: ${{ matrix.java }}
 
     - name: Build with Gradle Wrapper
-      run: |
-        ls -al fjlksafjdsal
-        ./gradlew build --warning-mode=fail
+      run: ./gradlew build --warning-mode=fail
