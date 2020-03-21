@@ -1,6 +1,7 @@
 plugins {
     id "application"
     id "maven-publish"
+    id "signing"
 }
 
 group "info.novatec"
@@ -54,6 +55,7 @@ java {
     withSourcesJar()
 }
 
+// based on https://docs.gradle.org/current/userguide/publishing_maven.html#sec:modifying_the_generated_pom and https://central.sonatype.org/pages/requirements.html#sufficient-metadata
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -91,6 +93,26 @@ publishing {
                 username 'micronaut-camunda'
                 password "$System.env.OSSRH_PWD"
             }
+        }
+    }
+}
+
+// see https://docs.gradle.org/current/userguide/signing_plugin.html#sec:specifying_what_to_sign
+signing {
+    sign publishing.publications.mavenJava
+}
+
+// based on https://docs.gradle.org/current/userguide/signing_plugin.html#sec:signatory_credentials
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.allTasks.any { it instanceof Sign }) {
+        def signingKeyId = findProperty("signingKeyId")
+        def secretKeyRingFile = findProperty("secretKeyRingFile")
+        System.console().printf "Signing with key $signingKeyId and secretKeyRingFile $secretKeyRingFile\n"
+
+        allprojects {
+            ext."signing.keyId" = signingKeyId
+            ext."signing.secretKeyRingFile" = secretKeyRingFile
+            ext."signing.password" = findProperty("signingPassword")
         }
     }
 }
