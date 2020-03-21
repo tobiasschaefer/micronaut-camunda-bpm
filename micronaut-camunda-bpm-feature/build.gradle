@@ -54,9 +54,7 @@ java {
     withSourcesJar()
 }
 
-task publish {
-    dependsOn 'build'
-}
+publish.dependsOn build
 
 publishing {
     publications {
