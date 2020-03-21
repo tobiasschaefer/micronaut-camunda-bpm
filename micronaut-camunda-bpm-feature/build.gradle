@@ -4,7 +4,7 @@ plugins {
 }
 
 group "info.novatec"
-version "0.0.1-SNAPSHOT"
+version = project.properties['version']
 
 configurations {
     // for dependencies that are needed for development only
