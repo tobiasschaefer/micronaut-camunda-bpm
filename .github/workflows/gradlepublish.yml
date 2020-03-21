@@ -20,10 +20,6 @@ jobs:
       with:
         java-version: 1.8
 
-    - name: Build with Gradle Wrapper
-      #run: ./gradlew build --warning-mode=fail
-      run: ./gradlew build
-
     - name: Extract secring.gpg to sign files
       run: echo -n $SECRING_GPG | base64 --decode > secring.gpg && pwd && ls -al
       env:
@@ -31,14 +27,12 @@ jobs:
 
     # The GITHUB_REF tag comes in the format 'refs/tags/v0.0.1'. If we split on '/' and take the 3rd value, we can get the release version, e.g. v.0.0.1
     # We then remove the leading "v", e.g. 0.0.1
-    - name: Publish to OSSRH
+    - name: Build and publish to OSSRH
       run: |
-        echo "Publishing: ${GITHUB_REF}"
-        echo "${GITHUB_REF}" | cut -d "/" -f3 | grep --regexp '^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+$'
-        echo "bbb"
+        echo "${GITHUB_ACTOR} is publishing tag: ${GITHUB_REF}"
+        echo "${GITHUB_REF}" | cut -d "/" -f3 | grep --regexp '^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+$' > /dev/null #Validate format with regular expression
         RELEASE_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3 | sed 's/v//')
-        echo "New version: ${RELEASE_VERSION}"
-        echo "Github username: ${GITHUB_ACTOR}"
-        ./gradlew -Pversion=${RELEASE_VERSION} publish
+        echo "New release version: ${RELEASE_VERSION}"
+        ./gradlew -Pversion=${RELEASE_VERSION} build publish
       env:
         OSSRH_PWD: ${{ secrets.OSSRH_PWD }}
