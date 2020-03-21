@@ -29,11 +29,11 @@ jobs:
     # We then remove the leading "v", e.g. 0.0.1
     - name: Build release based on tag and publish to OSSRH
       run: |
-        echo "${GITHUB_ACTOR} is publishing tag: ${GITHUB_REF}"
+        echo "${GITHUB_ACTOR} is publishing tag ${GITHUB_REF}."
         echo "${GITHUB_REF}" | cut -d "/" -f3 | grep --regexp '^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+$' > /dev/null #Validate format with regular expression
         RELEASE_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3 | sed 's/v//')
         echo "New release version: ${RELEASE_VERSION}"
+        ./gradlew -Pversion=${RELEASE_VERSION} build
         ./gradlew -Pversion=${RELEASE_VERSION} publish --info
-        ls -al micronaut-camunda-bpm-feature/build/libs/
       env:
         OSSRH_PWD: ${{ secrets.OSSRH_PWD }}
