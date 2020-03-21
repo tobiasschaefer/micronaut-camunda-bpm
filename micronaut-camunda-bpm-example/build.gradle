@@ -4,6 +4,7 @@ plugins {
 }
 
 group "info.novatec"
+version "0.0.1-SNAPSHOT"
 
 configurations {
     // for dependencies that are needed for development only
