@@ -55,8 +55,6 @@ java {
     withSourcesJar()
 }
 
-publish.dependsOn build
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
