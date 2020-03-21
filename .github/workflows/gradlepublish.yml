@@ -34,5 +34,6 @@ jobs:
         RELEASE_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3 | sed 's/v//')
         echo "New release version: ${RELEASE_VERSION}"
         ./gradlew -Pversion=${RELEASE_VERSION} publish --info
+        ls -al micronaut-camunda-bpm-feature/build/libs/
       env:
         OSSRH_PWD: ${{ secrets.OSSRH_PWD }}
