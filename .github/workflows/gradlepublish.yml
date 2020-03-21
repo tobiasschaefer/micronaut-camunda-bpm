@@ -27,12 +27,12 @@ jobs:
 
     # The GITHUB_REF tag comes in the format 'refs/tags/v0.0.1'. If we split on '/' and take the 3rd value, we can get the release version, e.g. v.0.0.1
     # We then remove the leading "v", e.g. 0.0.1
-    - name: Build and publish to OSSRH
+    - name: Build release based on tag and publish to OSSRH
       run: |
         echo "${GITHUB_ACTOR} is publishing tag: ${GITHUB_REF}"
         echo "${GITHUB_REF}" | cut -d "/" -f3 | grep --regexp '^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+$' > /dev/null #Validate format with regular expression
         RELEASE_VERSION=$(echo "${GITHUB_REF}" | cut -d "/" -f3 | sed 's/v//')
         echo "New release version: ${RELEASE_VERSION}"
-        ./gradlew -Pversion=${RELEASE_VERSION} build publish
+        ./gradlew -Pversion=${RELEASE_VERSION} publish
       env:
         OSSRH_PWD: ${{ secrets.OSSRH_PWD }}

@@ -54,6 +54,10 @@ java {
     withSourcesJar()
 }
 
+task publish {
+    dependsOn 'build'
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
