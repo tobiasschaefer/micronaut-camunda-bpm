@@ -102,6 +102,7 @@ signing {
     sign publishing.publications.mavenJava
 }
 
+/*
 // based on https://docs.gradle.org/current/userguide/signing_plugin.html#sec:signatory_credentials
 gradle.taskGraph.whenReady { taskGraph ->
     if (taskGraph.allTasks.any { it instanceof Sign }) {
@@ -116,3 +117,4 @@ gradle.taskGraph.whenReady { taskGraph ->
         }
     }
 }
+*/
