@@ -21,7 +21,7 @@ jobs:
         java-version: 1.8
 
     - name: Extract secring.gpg to sign files
-      run: echo -n $SECRING_GPG | base64 --decode > secring.gpg && pwd && ls -al
+      run: echo -n $SECRING_GPG | base64 --decode > micronaut-camunda-bpm-feature/secring.gpg && pwd && ls -al micronaut-camunda-bpm-feature/
       env:
         SECRING_GPG: ${{ secrets.SECRING_GPG }}
 
