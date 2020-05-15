@@ -13,7 +13,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.inject.Singleton;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 
 @Factory
@@ -49,6 +53,51 @@ public class MicronautProcessEngineConfiguration {
                 // Define default history level for history level "auto".
                 return HistoryLevel.HISTORY_LEVEL_FULL;
             }
+            @Override
+            protected InputStream getMyBatisXmlConfigurationSteam() {
+                String s = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                        "<!--\n" +
+                        "\n" +
+                        "    Copyright Camunda Services GmbH and/or licensed to Camunda Services GmbH\n" +
+                        "    under one or more contributor license agreements. See the NOTICE file\n" +
+                        "    distributed with this work for additional information regarding copyright\n" +
+                        "    ownership. Camunda licenses this file to you under the Apache License,\n" +
+                        "    Version 2.0; you may not use this file except in compliance with the License.\n" +
+                        "    You may obtain a copy of the License at\n" +
+                        "\n" +
+                        "        http://www.apache.org/licenses/LICENSE-2.0\n" +
+                        "\n" +
+                        "    Unless required by applicable law or agreed to in writing, software\n" +
+                        "    distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+                        "    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
+                        "    See the License for the specific language governing permissions and\n" +
+                        "    limitations under the License.\n" +
+                        "\n" +
+                        "-->\n" +
+                        "<!DOCTYPE configuration PUBLIC \"-//mybatis.org//DTD Config 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-config.dtd\">\n" +
+                        "\n" +
+                        "<configuration>\n" +
+                        "    <settings>\n" +
+                        "        <setting name=\"lazyLoadingEnabled\" value=\"false\" />\n" +
+                        "    </settings>\n" +
+                        "    <mappers>\n" +
+                        "        <mapper resource=\"org/camunda/bpm/engine/impl/mapping/entity/Commons.xml\" />\n" +
+                        "\n" +
+                        "        <mapper resource=\"org/camunda/bpm/engine/impl/mapping/entity/Deployment.xml\" />\n" +
+                        "        <mapper resource=\"org/camunda/bpm/engine/impl/mapping/entity/HistoricJobLog.xml\" />\n" +
+                        "        <mapper resource=\"org/camunda/bpm/engine/impl/mapping/entity/Job.xml\" />\n" +
+                        "        <mapper resource=\"org/camunda/bpm/engine/impl/mapping/entity/JobDefinition.xml\" />\n" +
+                        "        <mapper resource=\"org/camunda/bpm/engine/impl/mapping/entity/ProcessDefinition.xml\" />\n" +
+                        "        <mapper resource=\"org/camunda/bpm/engine/impl/mapping/entity/Property.xml\" />\n" +
+                        "        <mapper resource=\"org/camunda/bpm/engine/impl/mapping/entity/Resource.xml\" />\n" +
+                        "        <mapper resource=\"org/camunda/bpm/engine/impl/mapping/entity/Task.xml\" />\n" +
+                        "        <mapper resource=\"org/camunda/bpm/engine/impl/mapping/entity/Authorization.xml\" />\n" +
+                        "        <mapper resource=\"org/camunda/bpm/engine/impl/mapping/entity/Tenant.xml\" />\n" +
+                        "\n" +
+                        "    </mappers>\n" +
+                        "</configuration>\n";
+                return new ByteArrayInputStream(s.getBytes());
+            }
         }
                 .setDatabaseSchemaUpdate(configuration.getDatabase().getSchemaUpdate())
                 .setJdbcUrl(datasourceConfiguration.getUrl())
@@ -59,7 +108,13 @@ public class MicronautProcessEngineConfiguration {
                 .setJobExecutorActivate(true)
                 .setExpressionManager(new MicronautExpressionManager(new ApplicationContextElResolver(applicationContext)));
 
+        log.info("Building...");
+        Instant s = Instant.now();
         ProcessEngine processEngine = processEngineConfiguration.buildProcessEngine();
+        Instant t = Instant.now();
+
+        long delta = Duration.between(s, t).toMillis(); // .toWhatsoever()
+        log.info("Delta: " + delta);
         log.info("Successfully created process engine which is connected to database {}", datasourceConfiguration.getUrl());
 
         deployProcessModels(processEngine);
