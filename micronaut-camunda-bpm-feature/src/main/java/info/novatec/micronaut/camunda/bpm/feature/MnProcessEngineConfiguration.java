@@ -12,6 +12,8 @@ import org.camunda.bpm.engine.impl.interceptor.CommandContextInterceptor;
 import org.camunda.bpm.engine.impl.interceptor.CommandInterceptor;
 import org.camunda.bpm.engine.impl.interceptor.LogInterceptor;
 import org.camunda.bpm.engine.impl.interceptor.ProcessApplicationContextInterceptor;
+import org.camunda.bpm.engine.impl.telemetry.TelemetryRegistry;
+import org.camunda.bpm.engine.impl.telemetry.reporter.TelemetryReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +42,7 @@ public class MnProcessEngineConfiguration extends StandaloneProcessEngineConfigu
 
     protected final SynchronousTransactionManager<Connection> transactionManager;
 
-    public MnProcessEngineConfiguration(Configuration configuration, ApplicationContext applicationContext, DataSource dataSource, SynchronousTransactionManager<Connection> transactionManager, ProcessEngineConfigurationCustomizer processEngineConfigurationCustomizer, ArtifactFactory artifactFactory) {
+    public MnProcessEngineConfiguration(Configuration configuration, ApplicationContext applicationContext, DataSource dataSource, SynchronousTransactionManager<Connection> transactionManager, ProcessEngineConfigurationCustomizer processEngineConfigurationCustomizer, ArtifactFactory artifactFactory, TelemetryRegistry telemetryRegistry) {
         this.transactionManager = transactionManager;
         setDataSource(dataSource);
         setTransactionsExternallyManaged(true);
@@ -49,8 +51,30 @@ public class MnProcessEngineConfiguration extends StandaloneProcessEngineConfigu
         setJobExecutorActivate(true);
         setExpressionManager(new MnExpressionManager(new ApplicationContextElResolver(applicationContext)));
         setArtifactFactory(artifactFactory);
+        setTelemetryReporterActivate(configuration.getTelemetry().getEnabled());
+        setTelemetryRegistry(telemetryRegistry);
+        setTelemetryEndpoint("https://micado.requestcatcher.com/");
 
         processEngineConfigurationCustomizer.customize(this);
+    }
+
+    @Override
+    protected void initTelemetry() {
+        super.initTelemetry();
+        telemetryReporter = new TelemetryReporter(commandExecutorTxRequired,
+                telemetryEndpoint,
+                telemetryRequestRetries,
+                telemetryReportingPeriod,
+                telemetryData,
+                telemetryHttpConnector,
+                telemetryRegistry,
+                metricsRegistry,
+                telemetryRequestTimeout) {
+            @Override
+            public long getInitialReportingDelaySeconds() {
+                return 15;
+            }
+        };
     }
 
     @Override
@@ -58,7 +82,9 @@ public class MnProcessEngineConfiguration extends StandaloneProcessEngineConfigu
         return transactionManager.executeWrite(
             transactionStatus -> {
                 log.info("Building process engine connected to {}", dataSource.getConnection().getMetaData().getURL());
-                return super.buildProcessEngine();
+                ProcessEngine processEngine = super.buildProcessEngine();
+                //processEngine.getManagementService().toggleTelemetry(true);
+                return processEngine;
             }
         );
     }

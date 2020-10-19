@@ -20,11 +20,21 @@ public interface Configuration {
     @NotNull
     Database getDatabase();
 
+    @NotNull
+    Telemetry getTelemetry();
+
     @ConfigurationProperties("database")
     interface Database {
 
         @NotBlank
         @Bindable(defaultValue = ProcessEngineConfiguration.DB_SCHEMA_UPDATE_TRUE)
         String getSchemaUpdate();
+    }
+
+    @ConfigurationProperties("telemetry")
+    interface Telemetry {
+
+        @Bindable(defaultValue = "false")
+        boolean getEnabled();
     }
 }
