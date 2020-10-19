@@ -150,6 +150,7 @@ You may use the following properties (typically in application.yml) to configure
 |----------------------|------------------|----------------------------------------------|------------------------|
 | camunda.bpm          | .history-level   | auto                                         | Camunda history level, use one of [`full`, `audit`, `activity`, `none`, `auto`]. `auto` uses the level already present in the database, defaulting to `full`. |
 | camunda.bpm.database | .schema-update   | true                                         | If automatic schema update should be applied, use one of [`true`, `false`, `create`, `create-drop`, `drop-create`] |
+| camunda.bpm.telemetry| .enabled         | false                                        | Enable to periodically report anonymized telemetry data to Camunda, i.e. letting them know you're using this integration project. |
 
 ### Custom Process Engine Configuration
 
