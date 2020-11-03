@@ -6,7 +6,7 @@ plugins {
 group = "info.novatec"
 
 micronaut {
-    runtime("netty")
+    runtime("jetty")
     testRuntime("junit5")
     processing {
         incremental(true)
@@ -21,8 +21,23 @@ dependencies {
 
     // Test
     testImplementation("io.micronaut:micronaut-http-client")
-}
+    // REST API REQUIREMENT
+    compile group: 'com.fasterxml.jackson.jaxrs', name: 'jackson-jaxrs-json-provider', version: '2.11.3'
+    // REST API
+    compile "org.camunda.bpm:camunda-engine-rest:$camundaVersion"
 
+    // JERSEY
+    compile "org.glassfish.jersey.inject:jersey-hk2:2.32"
+    compile group: 'org.glassfish.jersey.containers', name: 'jersey-container-servlet-core', version: '2.32'
+    compile group: 'org.glassfish.jersey.containers', name: 'jersey-container-servlet', version: '2.32'
+
+    // Micronaut Servlet Dependency for Jetty
+    implementation("io.micronaut.servlet:micronaut-http-server-jetty:1.0.2")
+
+    // Additional needed Jetty Dependencies
+    compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.4.33.v20201020'
+    compile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '9.4.33.v20201020'
+}
 application {
     mainClass.set("info.novatec.micronaut.camunda.bpm.example.Application")
 }
