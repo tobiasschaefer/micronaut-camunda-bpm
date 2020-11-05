@@ -17,6 +17,7 @@ import java.util.Arrays;
  * @author Tobias Schäfer
  */
 @Factory
+@ResourceScan
 public class ProcessEngineFactory {
 
     public static final String MICRONAUT_AUTO_DEPLOYMENT_NAME = "MicronautAutoDeployment";

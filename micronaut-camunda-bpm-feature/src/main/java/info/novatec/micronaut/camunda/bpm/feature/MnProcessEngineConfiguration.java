@@ -4,6 +4,7 @@ import info.novatec.micronaut.camunda.bpm.feature.tx.MnTransactionContextFactory
 import info.novatec.micronaut.camunda.bpm.feature.tx.MnTransactionInterceptor;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.transaction.SynchronousTransactionManager;
+import jdk.nashorn.internal.runtime.regexp.JoniRegExp;
 import org.camunda.bpm.engine.ArtifactFactory;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.impl.cfg.StandaloneProcessEngineConfiguration;
@@ -14,8 +15,11 @@ import org.camunda.bpm.engine.impl.interceptor.LogInterceptor;
 import org.camunda.bpm.engine.impl.interceptor.ProcessApplicationContextInterceptor;
 import org.camunda.bpm.engine.impl.jobexecutor.DefaultJobExecutor;
 import org.camunda.bpm.engine.impl.jobexecutor.JobExecutor;
+import org.camunda.bpm.engine.impl.jobexecutor.ThreadPoolJobExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.SyncTaskExecutor;
 
 import javax.inject.Singleton;
 import javax.sql.DataSource;
