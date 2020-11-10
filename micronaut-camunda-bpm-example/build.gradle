@@ -27,6 +27,10 @@ dependencies {
     // REST API
     implementation("org.camunda.bpm:camunda-engine-rest:$camundaVersion")
 
+    //Camunda Webapps
+    implementation("org.camunda.bpm.webapp:camunda-webapp:$camundaVersion")
+    implementation("org.camunda.bpm.webapp:camunda-webapp-webjar:$camundaVersion")
+
     // JERSEY
     implementation("org.glassfish.jersey.inject:jersey-hk2:$jerseyVersion")
     implementation("org.glassfish.jersey.containers:jersey-container-servlet-core:$jerseyVersion")
@@ -38,6 +42,7 @@ dependencies {
     // Additional needed Jetty Dependencies
     implementation("org.eclipse.jetty:jetty-server:$jettyVersion")
     implementation("org.eclipse.jetty:jetty-servlet:$jettyVersion")
+
 }
 application {
     mainClass.set("info.novatec.micronaut.camunda.bpm.example.Application")
