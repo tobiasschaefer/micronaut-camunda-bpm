@@ -1,6 +1,7 @@
 package info.novatec.micronaut.camunda.bpm.example;
 
 import info.novatec.micronaut.camunda.bpm.example.rest.RestApp;
+import info.novatec.micronaut.camunda.bpm.example.rest.WelcomeApp;
 import io.micronaut.context.event.BeanCreatedEvent;
 import io.micronaut.context.event.BeanCreatedEventListener;
 import org.eclipse.jetty.server.Server;
@@ -34,6 +35,25 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
         ServletContainer servletContainer = new ServletContainer(new RestApp());
         ServletHolder servletHolder = new ServletHolder(servletContainer);
         context.addServlet(servletHolder, "/rest/*");
+
+        // Rest-app-test
+        ServletContainer servletContainer1 = new ServletContainer(new WelcomeApp());
+        ServletHolder servletHolder1 = new ServletHolder(servletContainer1);
+        context.addServlet(servletHolder1, "/web/*");
+        /*Application restApp = new RestApp2();
+        ResourceConfig rC = new ResourceConfig(restApp.getClass());
+        ServletContainer restContainer = new ServletContainer(rC);
+        ServletHolder restHolder = new ServletHolder(restContainer);
+        context.addServlet(restHolder, "/rest/*");
+
+        //Cockpit
+        Application cockpitApp = new CockpitApplication();
+        ResourceConfig cpConfig = new ResourceConfig(cockpitApp.getClass());
+        cpConfig.register(HelloWorldResource.class);
+        ServletContainer cpContainer = new ServletContainer(cpConfig);
+        ServletHolder cpHolder = new ServletHolder(cpContainer);
+        context.addServlet(cpHolder, "/cp/*");*/
+
 
         log.info("REST API initialized with Micronaut Servlet - try accessing it on http://localhost:8080/rest/engine");
 
