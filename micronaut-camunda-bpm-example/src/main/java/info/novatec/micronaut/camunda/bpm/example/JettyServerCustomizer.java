@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Singleton;
 
 /**
- * Using Micronaut Servlet with Jetty to run the REST API as a servlet
+ * Using Micronaut Servlet with Jetty to run the REST API as a servlet.
  * https://micronaut-projects.github.io/micronaut-servlet/1.0.x/guide/#jetty
  *
  * @author Martin Sawilla

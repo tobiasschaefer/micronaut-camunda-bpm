@@ -14,7 +14,7 @@ import java.util.Set;
  * @author Martin Sawilla
  */
 //Implementation based on Spring-Boot-Starter: https://github.com/camunda/camunda-bpm-spring-boot-starter/blob/master/starter-rest/src/main/java/org/camunda/bpm/spring/boot/starter/rest/spi/SpringBootProcessEngineProvider.java
-public class ServletProcessEngineProvider implements ProcessEngineProvider {
+public class RestApiProcessEngineProvider implements ProcessEngineProvider {
 
     @Override
     public ProcessEngine getDefaultProcessEngine() {
