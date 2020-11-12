@@ -1,49 +1,69 @@
 package info.novatec.micronaut.camunda.bpm.feature;
 
+import io.micronaut.core.beans.BeanIntrospection;
+import io.micronaut.core.beans.BeanProperty;
 import io.micronaut.inject.ast.ClassElement;
+import io.micronaut.inject.ast.FieldElement;
 import io.micronaut.inject.visitor.TypeElementVisitor;
 import io.micronaut.inject.visitor.VisitorContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.micronaut.scheduling.executor.$DefaultExecutorSelectorDefinitionClass;
 
+import java.io.File;
+import java.lang.reflect.Field;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 
 public class ResourceScanVisitor implements TypeElementVisitor<ResourceScan, Object> {
 
-    private static final Logger log = LoggerFactory.getLogger(ResourceScanVisitor.class);
+    private static final String RESOURCES_DIR = "src/main/resources";
+
+    private static Set<String> resourceFiles = new HashSet<>();
+
 
     @Override
     public void start(VisitorContext visitorContext) {
-        log.info("Test1");
-        log.debug("Test2");
-        log.error("Test3");
         System.err.println("Test4");
-
-        throw new RuntimeException();
     }
 
     @Override
     public void visitClass(ClassElement element, VisitorContext context) {
-       String test = "test";
+        String test = "testBlub";
 
-       log.info("Test1");
-       log.debug("Test2");
-       log.error("Test3");
-       System.err.println("Test4");
+        System.out.println(element.getSimpleName());
+        System.out.println("Test5");
 
-       throw new RuntimeException();
+        Optional<Path> projectDir = context.getProjectDir();
 
-           /*
-        DO SCANNING HERE?
-         */
+        resourceFiles = findResourceFiles(Paths.get(projectDir.get().toString(), RESOURCES_DIR).toFile(), new ArrayList<>());
 
-           //https://www.slideshare.net/graemerocher/micronaut-deep-dive-devoxx-belgium-2019 (Folie 36)
-       /* element.annotate(ResourceScan.class, resourceScanAnnotationValueBuilder -> {
-            element.stringValue(ResourceScan.class,test)
-                    .ifPresent(resourceScanAnnotationValueBuilder::value);
-        });*/
+        System.out.println("Modelle: " + resourceFiles.size());
 
+
+    }
+
+    private Set<String> findResourceFiles(File folder, List<String> filePath) {
+
+
+        String pattern = "(\\w)+\\.(bpmn|cmmn|dmn)";
+
+        if (filePath == null) {
+            filePath = new ArrayList<>();
         }
+
+        if (folder.exists()) {
+            File[] files = folder.listFiles();
+
+           for( File file : files){
+               if (file.getName().matches(pattern))
+               resourceFiles.add(file.getName());
+           }
+        }
+        return resourceFiles;
+    }
+
 }
+
 
 

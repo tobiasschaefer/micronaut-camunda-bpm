@@ -21,6 +21,19 @@ dependencies {
     implementation("io.micronaut:micronaut-runtime")
     api("org.camunda.bpm:camunda-engine:$camundaVersion")
 
+    //Position und Parametrisierung
+   // annotationProcessor ("io.micronaut:micronaut-inject-java")
+
+    //sorgt für JavaClassElement
+   implementation("io.micronaut:micronaut-inject-java")
+
+
+   // implementation ("io.micronaut:micronaut-runtime")
+   // implementation ("io.micronaut:micronaut-management")
+   // annotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
+   // annotationProcessor("info.novatec:micronaut-camunda-bpm-feature:$version")
+   // annotationProcessor(":micronaut-camunda-bpm-feature:0.9.0")
+
     // Integration of Transaction Management
     api("io.micronaut.data:micronaut-data-tx")
     api("io.micronaut.sql:micronaut-jdbc-hikari")

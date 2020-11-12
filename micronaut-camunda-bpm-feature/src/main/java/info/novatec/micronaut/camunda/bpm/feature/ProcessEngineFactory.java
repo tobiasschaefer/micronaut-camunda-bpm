@@ -11,13 +11,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Set;
 
 /**
  * @author Tobias Schäfer
  */
 @Factory
-@ResourceScan
 public class ProcessEngineFactory {
 
     public static final String MICRONAUT_AUTO_DEPLOYMENT_NAME = "MicronautAutoDeployment";
@@ -50,7 +51,7 @@ public class ProcessEngineFactory {
      * @param processEngine the {@link ProcessEngine}
      * @throws IOException if a resource, i.e. a model, cannot be loaded.
      */
-    private void deployProcessModels(ProcessEngine processEngine) throws IOException {
+    private void deployProcessModels(ProcessEngine processEngine) throws IOException{
         log.info("Searching non-recursively for models in the resources");
         PathMatchingResourcePatternResolver resourceLoader = new PathMatchingResourcePatternResolver();
         // Order of extensions has been chosen as a best fit for inter process dependencies.

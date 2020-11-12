@@ -1,5 +1,6 @@
 package info.novatec.micronaut.camunda.bpm.example;
 
+import info.novatec.micronaut.camunda.bpm.feature.ResourceScan;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
 import io.micronaut.scheduling.TaskExecutors;
