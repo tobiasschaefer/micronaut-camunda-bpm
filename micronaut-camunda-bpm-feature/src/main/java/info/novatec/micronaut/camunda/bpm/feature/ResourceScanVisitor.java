@@ -1,5 +1,8 @@
 package info.novatec.micronaut.camunda.bpm.feature;
 
+import io.micronaut.core.annotation.AnnotationClassValue;
+import io.micronaut.core.annotation.AnnotationMetadata;
+import io.micronaut.core.annotation.AnnotationUtil;
 import io.micronaut.core.beans.BeanIntrospection;
 import io.micronaut.core.beans.BeanProperty;
 import io.micronaut.inject.ast.ClassElement;
@@ -19,8 +22,7 @@ public class ResourceScanVisitor implements TypeElementVisitor<ResourceScan, Obj
 
     private static final String RESOURCES_DIR = "src/main/resources";
 
-    private static Set<String> resourceFiles = new HashSet<>();
-
+    private static ArrayList<String> resourceFiles = new ArrayList<>();
 
     @Override
     public void start(VisitorContext visitorContext) {
@@ -29,22 +31,26 @@ public class ResourceScanVisitor implements TypeElementVisitor<ResourceScan, Obj
 
     @Override
     public void visitClass(ClassElement element, VisitorContext context) {
-        String test = "testBlub";
+        //TODO: Versuchen @ResourceScan in Factory zu annotieren  --> Prio 1
+        //TODO: Problem beim Übergeben von String[]
 
-        System.out.println(element.getSimpleName());
-        System.out.println("Test5");
+        String test = "testBlub";
 
         Optional<Path> projectDir = context.getProjectDir();
 
         resourceFiles = findResourceFiles(Paths.get(projectDir.get().toString(), RESOURCES_DIR).toFile(), new ArrayList<>());
 
-        System.out.println("Modelle: " + resourceFiles.size());
+        String[] resourceArray = new String[resourceFiles.size()];
+        resourceArray = resourceFiles.toArray(resourceArray);
 
+
+        element.annotate(ResourceScan.class, resourceScanAnnotationValueBuilder -> resourceScanAnnotationValueBuilder.member("test",new AnnotationClassValue<>(resourceFiles)));
 
     }
 
-    private Set<String> findResourceFiles(File folder, List<String> filePath) {
+    private ArrayList<String> findResourceFiles(File folder, List<String> filePath) {
 
+        //Verbessern
 
         String pattern = "(\\w)+\\.(bpmn|cmmn|dmn)";
 
