@@ -1,4 +1,10 @@
 micronaut:
   application:
     name: micronaut-camunda-example
+  router:
+    static-resources:
+      default:
+        enabled: true
+        mapping: "/static/**"
+        paths: "classpath:/META-INF/resources/webjars/camunda"
 camunda.bpm.telemetry.initializeTelemetry: true
