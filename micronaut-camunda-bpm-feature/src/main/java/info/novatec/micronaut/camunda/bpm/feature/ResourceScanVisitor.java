@@ -20,43 +20,50 @@ import java.util.*;
 
 public class ResourceScanVisitor implements TypeElementVisitor<ResourceScan, Object> {
 
-    private static final String RESOURCES_DIR = "src/main/resources";
+    private static final String RESOURCES_DIR = "src/main/resources/";
+
+    private static final String TEST_DIR = "src/main/resources/test";
 
     private static ArrayList<String> resourceFiles = new ArrayList<>();
 
     @Override
     public void start(VisitorContext visitorContext) {
+
         System.err.println("Test4");
     }
 
     @Override
     public void visitClass(ClassElement element, VisitorContext context) {
         //TODO: Versuchen @ResourceScan in Factory zu annotieren  --> Prio 1
-        //TODO: Problem beim Übergeben von String[]
+        //TODO: rekusive suche  --> herausfinden wie man subdirectories raussuchen kann, z.B test/helloworld2.bpmn" muss übergeben werden
+        //TODO: Gradle Demon Problem
+
+        System.out.println("Visits Class!");
 
         String test = "testBlub";
 
         Optional<Path> projectDir = context.getProjectDir();
 
-        resourceFiles = findResourceFiles(Paths.get(projectDir.get().toString(), RESOURCES_DIR).toFile(), new ArrayList<>());
+        resourceFiles = findResourceFiles(Paths.get(projectDir.get().toString(), RESOURCES_DIR).toFile());
 
         String[] resourceArray = new String[resourceFiles.size()];
         resourceArray = resourceFiles.toArray(resourceArray);
 
+        //effectivly final
+        String[] finalResourceArray = resourceArray;
 
-        element.annotate(ResourceScan.class, resourceScanAnnotationValueBuilder -> resourceScanAnnotationValueBuilder.member("test",new AnnotationClassValue<>(resourceFiles)));
+        element.annotate(ResourceScan.class, resourceScanAnnotationValueBuilder -> resourceScanAnnotationValueBuilder.member("test", finalResourceArray));
 
     }
 
-    private ArrayList<String> findResourceFiles(File folder, List<String> filePath) {
+
+    private ArrayList<String> findResourceFiles(File folder) {
 
         //Verbessern
 
-        String pattern = "(\\w)+\\.(bpmn|cmmn|dmn)";
+        System.out.println(folder.getName());
 
-        if (filePath == null) {
-            filePath = new ArrayList<>();
-        }
+        String pattern = "(\\w)+\\.(bpmn|cmmn|dmn)";
 
         if (folder.exists()) {
             File[] files = folder.listFiles();

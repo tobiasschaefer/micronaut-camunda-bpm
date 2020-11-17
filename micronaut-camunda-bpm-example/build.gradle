@@ -10,7 +10,7 @@ micronaut {
     testRuntime "junit5"
     processing {
         incremental true
-        annotations "micronaut.camunda.bpm.*"
+        annotations "micronaut.camunda.bpm.example.*"
     }
 }
 

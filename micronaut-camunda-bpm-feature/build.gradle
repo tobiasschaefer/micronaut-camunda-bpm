@@ -24,7 +24,6 @@ dependencies {
     //Position und Parametrisierung
    // annotationProcessor ("io.micronaut:micronaut-inject-java")
 
-    //sorgt für JavaClassElement
    implementation("io.micronaut:micronaut-inject-java")
 
 
