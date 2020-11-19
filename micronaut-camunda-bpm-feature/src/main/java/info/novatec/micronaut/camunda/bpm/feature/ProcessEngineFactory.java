@@ -1,18 +1,12 @@
 package info.novatec.micronaut.camunda.bpm.feature;
 
 import io.micronaut.context.ApplicationContext;
-import io.micronaut.context.BeanContext;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.core.annotation.AnnotationMetadata;
-import io.micronaut.core.annotation.AnnotationMetadataProvider;
-import io.micronaut.core.annotation.AnnotationValue;
-import io.micronaut.core.io.ResourceLoader;
 import io.micronaut.core.io.scan.DefaultClassPathResourceLoader;
 import io.micronaut.inject.BeanDefinition;
-import io.micronaut.inject.InjectionPoint;
-import io.micronaut.inject.annotation.AbstractAnnotationMetadataBuilder;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.ProcessEngineConfiguration;
@@ -23,8 +17,6 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -74,32 +66,27 @@ public class ProcessEngineFactory {
      */
     private void deployProcessModels(ProcessEngine processEngine) throws IOException {
         Collection<BeanDefinition<?>> definitions = applicationContext.getBeanDefinitions(Qualifiers.byStereotype(ResourceScan.class));
-        for (BeanDefinition definition : definitions) {
-            log.info(String.valueOf(definitions.size()));
-            AnnotationMetadata annotationMetadata = definition.getAnnotationMetadata();
 
-            modelArray = annotationMetadata.stringValues(ResourceScan.class, "test");
+        for (BeanDefinition definition : definitions) {
+            AnnotationMetadata annotationMetadata = definition.getAnnotationMetadata();
+            modelArray = annotationMetadata.stringValues(ResourceScan.class, "models");
         }
 
 
         log.info("Searching non-recursively for models in the resources");
-
-
-        //Working
-        PathMatchingResourcePatternResolver resourceLoader = new PathMatchingResourcePatternResolver();
         // Order of extensions has been chosen as a best fit for inter process dependencies.
         for (String model : modelArray){
-            System.out.println("Modelstring:" + model);
-          Resource resource = resourceLoader.getResource(model);
-           log.info("Deploying model: {}", resource.getFilename());
-           processEngine.getRepositoryService().createDeployment()
-                        .name(MICRONAUT_AUTO_DEPLOYMENT_NAME)
-                        .addInputStream(resource.getFilename(), resource.getInputStream())
-                        .enableDuplicateFiltering(true)
-                        .deploy();
-            }
-         }
-/*
+            Optional<InputStream> resource = defaultClassPathResourceLoader.getResourceAsStream(model);  //Using Micronauts DefaultClassPathResourceLoader
+            log.info("Deploying model: {}", model);
+            processEngine.getRepositoryService().createDeployment()
+                    .name(MICRONAUT_AUTO_DEPLOYMENT_NAME)
+                    .addInputStream(model, resource.get())
+                    .enableDuplicateFiltering(true)
+                    .deploy();
+        }
+    }
+
+/*    //Original
         PathMatchingResourcePatternResolver resourceLoader = new PathMatchingResourcePatternResolver();
         // Order of extensions has been chosen as a best fit for inter process dependencies.
         for (String extension : Arrays.asList("dmn", "cmmn", "bpmn")) {
