@@ -1,23 +1,18 @@
 package info.novatec.micronaut.camunda.bpm.feature;
 
-import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Factory;
-import io.micronaut.core.annotation.AnnotationMetadata;
 import io.micronaut.core.io.scan.DefaultClassPathResourceLoader;
-import io.micronaut.inject.BeanDefinition;
-import io.micronaut.inject.qualifiers.Qualifiers;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.ProcessEngineConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 /**
  * @author Tobias Schäfer
@@ -28,10 +23,6 @@ public class ProcessEngineFactory {
     public static final String MICRONAUT_AUTO_DEPLOYMENT_NAME = "MicronautAutoDeployment";
 
     private static final Logger log = LoggerFactory.getLogger(ProcessEngineFactory.class);
-
-    private static  String[] modelArray;
-
-    private ApplicationContext applicationContext;
 
     private static DefaultClassPathResourceLoader defaultClassPathResourceLoader;
 
@@ -44,10 +35,8 @@ public class ProcessEngineFactory {
      */
     @Context
     @Bean(preDestroy = "close")
-    public ProcessEngine processEngine(ProcessEngineConfiguration processEngineConfiguration, ApplicationContext applicationContext, DefaultClassPathResourceLoader defaultClassPathResourceLoader) throws IOException {
+    public ProcessEngine processEngine(ProcessEngineConfiguration processEngineConfiguration, DefaultClassPathResourceLoader defaultClassPathResourceLoader) throws IOException {
         this.defaultClassPathResourceLoader = defaultClassPathResourceLoader;
-        this.applicationContext = applicationContext;
-
 
         ProcessEngine processEngine = processEngineConfiguration.buildProcessEngine();
 
@@ -65,39 +54,17 @@ public class ProcessEngineFactory {
      * @throws IOException if a resource, i.e. a model, cannot be loaded.
      */
     private void deployProcessModels(ProcessEngine processEngine) throws IOException {
-        Collection<BeanDefinition<?>> definitions = applicationContext.getBeanDefinitions(Qualifiers.byStereotype(ResourceScan.class));
-
-        for (BeanDefinition definition : definitions) {
-            AnnotationMetadata annotationMetadata = definition.getAnnotationMetadata();
-            modelArray = annotationMetadata.stringValues(ResourceScan.class, "models");
-        }
-
-
-        log.info("Searching non-recursively for models in the resources");
-        // Order of extensions has been chosen as a best fit for inter process dependencies.
-        for (String model : modelArray){
-            Optional<InputStream> resource = defaultClassPathResourceLoader.getResourceAsStream(model);  //Using Micronauts DefaultClassPathResourceLoader
-            log.info("Deploying model: {}", model);
-            processEngine.getRepositoryService().createDeployment()
-                    .name(MICRONAUT_AUTO_DEPLOYMENT_NAME)
-                    .addInputStream(model, resource.get())
-                    .enableDuplicateFiltering(true)
-                    .deploy();
-        }
-    }
-
-/*    //Original
-        PathMatchingResourcePatternResolver resourceLoader = new PathMatchingResourcePatternResolver();
-        // Order of extensions has been chosen as a best fit for inter process dependencies.
-        for (String extension : Arrays.asList("dmn", "cmmn", "bpmn")) {
-            for (Resource resource : resourceLoader.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + "*." + extension)) {
-                log.info("Deploying model: {}", resource.getFilename());
+        log.info("Deploying models from the resources");
+        //TODO: determine path for mn.txt
+        try (Stream<String> stream = Files.lines(Paths.get("/Users/tos/scratch/micronaut-camunda-bpm/micronaut-camunda-bpm-example/build/resources/main/mn.txt"))) {
+            stream.forEach( model -> {
+                log.info("Deploying model: {}", model);
                 processEngine.getRepositoryService().createDeployment()
                         .name(MICRONAUT_AUTO_DEPLOYMENT_NAME)
-                        .addInputStream(resource.getFilename(), resource.getInputStream())
+                        .addInputStream(model, defaultClassPathResourceLoader.getResourceAsStream(model).get())
                         .enableDuplicateFiltering(true)
                         .deploy();
-            }
+            });
         }
-    }*/
+    }
 }

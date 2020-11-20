@@ -1,8 +1,10 @@
 package info.novatec.micronaut.camunda.bpm.example;
 
-import info.novatec.micronaut.camunda.bpm.feature.ResourceScan;
 import io.micronaut.http.MediaType;
-import io.micronaut.http.annotation.*;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.Produces;
 import io.micronaut.scheduling.TaskExecutors;
 import io.micronaut.scheduling.annotation.ExecuteOn;
 import org.camunda.bpm.engine.ProcessEngine;
@@ -13,7 +15,7 @@ import org.camunda.bpm.engine.repository.ResourceDefinition;
 import java.util.stream.Collectors;
 
 @Controller("/camunda")
-@ResourceScan
+//@ResourceScan
 public class CamundaController {
 
     private final ProcessEngine processEngine;
