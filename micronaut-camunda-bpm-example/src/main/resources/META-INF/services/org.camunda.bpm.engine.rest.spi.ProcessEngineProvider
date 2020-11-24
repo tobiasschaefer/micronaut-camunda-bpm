@@ -1,1 +1,1 @@
-org.camunda.bpm.engine.rest.impl.application.ContainerManagedProcessEngineProvider
+info.novatec.micronaut.camunda.bpm.example.rest.spi.RestApiProcessEngineProvider

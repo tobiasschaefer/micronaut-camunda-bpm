@@ -21,16 +21,14 @@ dependencies {
 
     // Test
     testImplementation("io.micronaut:micronaut-http-client")
+
     // REST API REQUIREMENT
     implementation("com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:$jacksonVersion")
 
     // REST API
     implementation("org.camunda.bpm:camunda-engine-rest:$camundaVersion")
 
-    //Camunda Webapps
-    //implementation("org.camunda.bpm.webapp:camunda-webapp:$camundaVersion")/*{
-        //exclude group: 'org.camunda.bpm', module: 'camunda-engine-rest-core'
-    //}*/
+    // WEBJAR
     implementation("org.camunda.bpm.webapp:camunda-webapp-webjar:$camundaVersion")
 
     // JERSEY
