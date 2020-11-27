@@ -1,3 +1,19 @@
+/*
+ * Copyright Camunda Services GmbH and/or licensed to Camunda Services GmbH
+ * under one or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information regarding copyright
+ * ownership. Camunda licenses this file to you under the Apache License,
+ * Version 2.0; you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package info.novatec.micronaut.camunda.bpm.example;
 
 import java.io.IOException;
@@ -30,8 +46,6 @@ import org.camunda.bpm.webapp.impl.security.SecurityActions.SecurityAction;
 import org.camunda.bpm.webapp.plugin.spi.AppPlugin;
 import org.camunda.bpm.welcome.Welcome;
 import org.camunda.bpm.welcome.WelcomeRuntimeDelegate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -41,8 +55,6 @@ import org.slf4j.LoggerFactory;
  * @author Sebastian Stamm
  *
  */
-
-// MADE SOME MODIFICATIONS!!!
 public class ProcessEnginesFilter extends AbstractTemplateFilter {
 
     protected static final String COCKPIT_APP_NAME = "cockpit";
@@ -61,8 +73,7 @@ public class ProcessEnginesFilter extends AbstractTemplateFilter {
     public static final String PLUGIN_DEPENDENCIES_PLACEHOLDER = "$PLUGIN_DEPENDENCIES";
     public static final String PLUGIN_PACKAGES_PLACEHOLDER = "$PLUGIN_PACKAGES";
 
-    // THIS WAS MODIFICATED
-    public static Pattern APP_PREFIX_PATTERN = Pattern.compile("/webjars/app/(?:([\\w-]+?)/(?:(index\\.html|[\\w-]+)?/?([^?]*)?)?)?");
+    public static Pattern APP_PREFIX_PATTERN = Pattern.compile("/app/(?:([\\w-]+?)/(?:(index\\.html|[\\w-]+)?/?([^?]*)?)?)?");
 
     protected final CockpitRuntimeDelegate cockpitRuntimeDelegate;
     protected final AdminRuntimeDelegate adminRuntimeDelegate;
@@ -75,12 +86,8 @@ public class ProcessEnginesFilter extends AbstractTemplateFilter {
     // accepts two times the plugin name
     protected final String pluginDependencyFormat;
 
-    private static final Logger log = LoggerFactory.getLogger(ProcessEnginesFilter.class);
-
     public ProcessEnginesFilter() {
-        log.info("HELLO FROM ProcessENginesFilter");
         this.cockpitRuntimeDelegate = Cockpit.getRuntimeDelegate();
-        log.info(cockpitRuntimeDelegate.getAppPluginRegistry().getPlugins().get(0).getId());
         this.adminRuntimeDelegate = Admin.getRuntimeDelegate();
         this.tasklistRuntimeDelegate = Tasklist.getRuntimeDelegate();
         this.welcomeRuntimeDelegate = Welcome.getRuntimeDelegate();
@@ -91,7 +98,7 @@ public class ProcessEnginesFilter extends AbstractTemplateFilter {
 
     @Override
     protected void applyFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        log.info("APPLYFILTER GOT CALLED");
+
         String contextPath = request.getContextPath();
         String requestUri = request.getRequestURI().substring(contextPath.length());
 
@@ -102,12 +109,10 @@ public class ProcessEnginesFilter extends AbstractTemplateFilter {
         if (applicationPathLength > 0) {
             requestUri = requestUri.substring(applicationPathLength);
         }
-        log.info("RequestUri: "+requestUri);
+
         Matcher uriMatcher = APP_PREFIX_PATTERN.matcher(requestUri);
 
-        // BASICALLY ONLY LISTENS FOR something with index.html
         if (uriMatcher.matches()) {
-            log.info("URI MATCHER TRUE");
             String appName = uriMatcher.group(1);
             String engineName = uriMatcher.group(2);
             String pageUri = uriMatcher.group(3);
@@ -124,7 +129,7 @@ public class ProcessEnginesFilter extends AbstractTemplateFilter {
             }
 
             if (INDEX_PAGE.equals(pageUri)) {
-                response.sendRedirect(String.format("%s%s/webjars/app/%s/%s/", contextPath, applicationPath,
+                response.sendRedirect(String.format("%s%s/app/%s/%s/", contextPath, applicationPath,
                         appName, engineName));
                 return;
             }
@@ -135,6 +140,7 @@ public class ProcessEnginesFilter extends AbstractTemplateFilter {
             }
 
         }
+
         chain.doFilter(request, response);
     }
 
@@ -150,7 +156,7 @@ public class ProcessEnginesFilter extends AbstractTemplateFilter {
         if (appName == null) {
 
             // redirect to {defaultApp}/{defaultEngineName}
-            response.sendRedirect(String.format("%s%s/webjars/app/%s/%s/", contextPath, applicationPath,
+            response.sendRedirect(String.format("%s%s/app/%s/%s/", contextPath, applicationPath,
                     DEFAULT_APP, getDefaultEngineName()));
         } else
 
@@ -158,7 +164,7 @@ public class ProcessEnginesFilter extends AbstractTemplateFilter {
             // redirect to /app/{defaultEngineName}/
             if (engineName == null) {
                 // redirect to {defaultApp}/{defaultEngineName}
-                response.sendRedirect(String.format("%s%s/webjars/app/%s/%s/", contextPath, applicationPath,
+                response.sendRedirect(String.format("%s%s/app/%s/%s/", contextPath, applicationPath,
                         appName, getDefaultEngineName()));
             } else {
 
@@ -168,7 +174,7 @@ public class ProcessEnginesFilter extends AbstractTemplateFilter {
                 if (needsInitialUser(engineName)) {
                     if (!setupPage) {
                         // redirect to setup
-                        String setupPath = "%s%s/webjars/app/admin/%s/setup/#/setup";
+                        String setupPath = "%s%s/app/admin/%s/setup/#/setup";
                         response.sendRedirect(String.format(setupPath, contextPath, applicationPath, engineName));
                     } else {
                         // serve the index page as a setup page
@@ -180,7 +186,7 @@ public class ProcessEnginesFilter extends AbstractTemplateFilter {
                         // correctly serving index page
                         serveIndexPage(appName, engineName, applicationPath, contextPath, response);
                     } else {
-                        response.sendRedirect(String.format("%s%s/webjars/app/%s/%s/", contextPath, applicationPath,
+                        response.sendRedirect(String.format("%s%s/app/%s/%s/", contextPath, applicationPath,
                                 appName, engineName));
                     }
                 }
@@ -221,7 +227,7 @@ public class ProcessEnginesFilter extends AbstractTemplateFilter {
             chain.doFilter(request, response);
         } else {
             // strip engine namespace and check if resource would exist
-            String cleanAppUri = String.format("%s/webjars/app/%s/%s", applicationPath, appName, pageUri);
+            String cleanAppUri = String.format("%s/app/%s/%s", applicationPath, appName, pageUri);
 
             if (hasWebResource(cleanAppUri)) {
                 request.getRequestDispatcher(cleanAppUri).forward(request, response);
@@ -259,7 +265,7 @@ public class ProcessEnginesFilter extends AbstractTemplateFilter {
                                   String applicationPath,
                                   String contextPath,
                                   HttpServletResponse response) throws IOException {
-        String data = getWebResourceContents("/webjars/app/" + appName + "/index.html");
+        String data = getWebResourceContents("/app/" + appName + "/index.html");
 
         data = replacePlaceholder(data, appName, engineName, applicationPath, contextPath);
 
@@ -275,7 +281,7 @@ public class ProcessEnginesFilter extends AbstractTemplateFilter {
                                         String applicationPath,
                                         String contextPath) {
         return data.replace(APP_ROOT_PLACEHOLDER, contextPath + applicationPath)
-                .replace(BASE_PLACEHOLDER, String.format("%s%s/webjars/app/%s/%s/", contextPath,
+                .replace(BASE_PLACEHOLDER, String.format("%s%s/app/%s/%s/", contextPath,
                         applicationPath, appName, engineName))
                 .replace(PLUGIN_PACKAGES_PLACEHOLDER, createPluginPackagesStr(appName,
                         applicationPath, contextPath))
@@ -344,4 +350,3 @@ public class ProcessEnginesFilter extends AbstractTemplateFilter {
     }
 
 }
-

@@ -1,14 +1,18 @@
 package info.novatec.micronaut.camunda.bpm.example;
 
-import info.novatec.micronaut.camunda.bpm.example.rest.AdminApp;
+import info.novatec.micronaut.camunda.bpm.example.webapps.*;
 import info.novatec.micronaut.camunda.bpm.example.rest.RestApp;
-import info.novatec.micronaut.camunda.bpm.example.rest.WelcomeApp;
 import io.micronaut.context.event.BeanCreatedEvent;
 import io.micronaut.context.event.BeanCreatedEventListener;
 import org.camunda.bpm.admin.impl.web.bootstrap.AdminContainerBootstrap;
 import org.camunda.bpm.cockpit.Cockpit;
 import org.camunda.bpm.cockpit.impl.web.bootstrap.CockpitContainerBootstrap;
+import org.camunda.bpm.engine.rest.filter.CacheControlFilter;
+import org.camunda.bpm.engine.rest.filter.EmptyBodyFilter;
 import org.camunda.bpm.tasklist.impl.web.bootstrap.TasklistContainerBootstrap;
+import org.camunda.bpm.webapp.impl.security.auth.AuthenticationFilter;
+import org.camunda.bpm.webapp.impl.security.filter.CsrfPreventionFilter;
+import org.camunda.bpm.webapp.impl.security.filter.SecurityFilter;
 import org.camunda.bpm.webapp.impl.security.filter.util.HttpSessionMutexListener;
 import org.camunda.bpm.welcome.impl.web.bootstrap.WelcomeContainerBootstrap;
 import org.eclipse.jetty.server.Server;
@@ -20,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
 import javax.servlet.*;
-import java.io.IOException;
 import java.util.EnumSet;
 
 /**
@@ -62,9 +65,10 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
 
         log.info("REST API initialized with Micronaut Servlet - try accessing it on http://localhost:8080/rest/engine");
 
+        EnumSet<DispatcherType> DISPATCHER_TYPES = EnumSet.of(DispatcherType.REQUEST, DispatcherType.INCLUDE, DispatcherType.FORWARD, DispatcherType.ERROR);
         // Filter to replace the $APP_ROOT stuff
-        contextHandler.addFilter(ProcessEnginesFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST, DispatcherType.INCLUDE));
-        contextHandler.addFilter(TestFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
+        contextHandler.addFilter(ProcessEnginesFilter.class, "/app/*", DISPATCHER_TYPES);
+        //contextHandler.addFilter(TestFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
         return jettyServer;
     }
@@ -75,18 +79,21 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
     public static class InitListener implements ServletContextListener
     {
         private static final Logger log = LoggerFactory.getLogger(InitListener.class);
+
+        private static final EnumSet<DispatcherType> DISPATCHER_TYPES = EnumSet.of(DispatcherType.REQUEST, DispatcherType.INCLUDE, DispatcherType.FORWARD, DispatcherType.ERROR);
+
         @Override
         public void contextInitialized(ServletContextEvent sce)
         {
-            sce.getServletContext().setAttribute("X-Init", "true");
             log.info(Cockpit.getRuntimeDelegate().getAppPluginRegistry().getPlugins().get(0).getId());
-            ServletContext x = sce.getServletContext();
-            ServletContainer welcomeAppContainer = new ServletContainer(new WelcomeApp());
-            x.addServlet("WelcomeApp", welcomeAppContainer).addMapping("/api/welcome/*");
-            log.info("Welcome initialized");
-            ServletContainer adminAppContainer = new ServletContainer(new AdminApp());
-            x.addServlet("AdminApp", adminAppContainer).addMapping("/api/admin/*");
-            log.info("Admin initialized");
+            ServletContext servletContext = sce.getServletContext();
+
+            servletContext.addServlet("CockpitApp", new ServletContainer(new CockpitApp())).addMapping("/api/cockpit/*");
+            servletContext.addServlet("AdminApp", new ServletContainer(new AdminApp())).addMapping("/api/admin/*");
+            servletContext.addServlet("TasklistApp", new ServletContainer(new TasklistApp())).addMapping("/api/tasklist/*");
+            servletContext.addServlet("EngineRestApp", new ServletContainer(new EngineRestApp())).addMapping("/api/engine/*");
+            servletContext.addServlet("WelcomeApp", new ServletContainer(new WelcomeApp())).addMapping("/api/welcome/*");
+            log.info("In theory: Servlets are initialized");
         }
 
         @Override
@@ -95,7 +102,7 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
         }
     }
 
-    public static class TestFilter implements Filter {
+    /*public static class TestFilter implements Filter {
         private static final Logger log = LoggerFactory.getLogger(TestFilter.class);
         @Override
         public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -103,6 +110,6 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
             chain.doFilter(request, response);
         }
 
-    }
+    }*/
 }
 
