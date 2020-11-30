@@ -21,9 +21,10 @@ micronaut {
 }
 
 dependencies {
+    api platform("org.camunda.bpm:camunda-bom:$camundaVersion")
     implementation("io.micronaut:micronaut-validation")
     implementation("io.micronaut:micronaut-runtime")
-    api("org.camunda.bpm:camunda-engine:$camundaVersion")
+    api("org.camunda.bpm:camunda-engine")
 
     kaptTest platform("io.micronaut:micronaut-bom:$micronautVersion")
     kaptTest("io.micronaut.data:micronaut-data-processor")
