@@ -8,6 +8,7 @@ import io.micronaut.transaction.SynchronousTransactionManager;
 import org.camunda.bpm.engine.ArtifactFactory;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.camunda.bpm.engine.impl.db.sql.DbSqlSessionFactory;
 import org.camunda.bpm.engine.impl.history.HistoryLevel;
 import org.camunda.bpm.engine.impl.interceptor.*;
 import org.camunda.bpm.engine.impl.jobexecutor.DefaultJobExecutor;
@@ -19,9 +20,11 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.micronaut.transaction.TransactionDefinition.Propagation.REQUIRED;
 import static io.micronaut.transaction.TransactionDefinition.Propagation.REQUIRES_NEW;
@@ -118,13 +121,18 @@ public class MnProcessEngineConfiguration extends ProcessEngineConfigurationImpl
     }
 
     private List<CommandInterceptor> getCommandInterceptors(boolean requiresNew) {
-        return Arrays.asList(
+        // CRDB interceptor is added before the MnTransactionInterceptor,
+        // so that a Micronaut TX may be rolled back before retrying.
+        return Stream.of(
+                DbSqlSessionFactory.CRDB.equals(databaseType) ? getCrdbRetryInterceptor() : null,
                 new LogInterceptor(),
                 new CommandCounterInterceptor(this),
                 new ProcessApplicationContextInterceptor(this),
                 new MnTransactionInterceptor(transactionManager, requiresNew ? REQUIRES_NEW : REQUIRED),
                 new CommandContextInterceptor(commandContextFactory, this, requiresNew)
-        );
+        )
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     /**
