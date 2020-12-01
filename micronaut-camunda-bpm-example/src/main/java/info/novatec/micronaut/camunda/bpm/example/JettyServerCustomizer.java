@@ -7,6 +7,8 @@ import io.micronaut.context.event.BeanCreatedEventListener;
 import org.camunda.bpm.admin.impl.web.bootstrap.AdminContainerBootstrap;
 import org.camunda.bpm.cockpit.Cockpit;
 import org.camunda.bpm.cockpit.impl.web.bootstrap.CockpitContainerBootstrap;
+import org.camunda.bpm.engine.rest.filter.CacheControlFilter;
+import org.camunda.bpm.engine.rest.filter.EmptyBodyFilter;
 import org.camunda.bpm.tasklist.impl.web.bootstrap.TasklistContainerBootstrap;
 import org.camunda.bpm.webapp.impl.security.auth.AuthenticationFilter;
 import org.camunda.bpm.webapp.impl.security.filter.headersec.HttpHeaderSecurityFilter;
@@ -69,11 +71,12 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
 
         // DEF. The servlet dispatcher allows a request to travel from one servlet to other servlets
         EnumSet<DispatcherType> DISPATCHER_TYPES = EnumSet.of(DispatcherType.REQUEST, DispatcherType.INCLUDE, DispatcherType.FORWARD, DispatcherType.ERROR);
-        // Filter to replace the $APP_ROOT stuff
-        contextHandler.addFilter(ProcessEnginesFilter.class, "/app/*", DISPATCHER_TYPES);
-        contextHandler.addFilter(AuthenticationFilter.class, "/app/", DISPATCHER_TYPES);
-        contextHandler.addFilter(HttpHeaderSecurityFilter.class, "/app/*", DISPATCHER_TYPES);
 
+        contextHandler.addFilter(ProcessEnginesFilter.class, "/app/*", DISPATCHER_TYPES);
+        contextHandler.addFilter(AuthenticationFilter.class, "/app/*", DISPATCHER_TYPES);
+        contextHandler.addFilter(HttpHeaderSecurityFilter.class, "/app/*", DISPATCHER_TYPES);
+        contextHandler.addFilter(EmptyBodyFilter.class, "/app/*", DISPATCHER_TYPES);
+        contextHandler.addFilter(CacheControlFilter.class, "/app/*", DISPATCHER_TYPES);
         // Authentication uses a Session Cookie!
         SessionIdManager idManager = new DefaultSessionIdManager(jettyServer);
         jettyServer.setSessionIdManager(idManager);
@@ -102,12 +105,6 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
             servletContext.addServlet("TasklistApp", new ServletContainer(new TasklistApp())).addMapping("/api/tasklist/*");
             servletContext.addServlet("EngineRestApp", new ServletContainer(new EngineRestApp())).addMapping("/api/engine/*");
             servletContext.addServlet("WelcomeApp", new ServletContainer(new WelcomeApp())).addMapping("/api/welcome/*");
-            // Set SessionManager
-            servletContext.setSessionTrackingModes(Collections.singleton(SessionTrackingMode.COOKIE));
-            //log.info(servletContext.getEffectiveSessionTrackingModes().toString());
-            //servletContext.setSessionTrackingModes(Collections.singleton(SessionTrackingMode.COOKIE));
-            //log.info(servletContext.getDefaultSessionTrackingModes().toString());
-            //log.info(servletContext.getEffectiveSessionTrackingModes().toString());
             log.info("In theory: Servlets are initialized");
         }
 
