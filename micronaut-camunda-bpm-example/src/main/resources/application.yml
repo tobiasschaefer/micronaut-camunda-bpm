@@ -13,4 +13,5 @@ micronaut:
           - "classpath:/META-INF/resources/"
         mapping: "/**"
 
-camunda.bpm.telemetry.initializeTelemetry: true
+camunda.bpm:
+  telemetry.initializeTelemetry: true
