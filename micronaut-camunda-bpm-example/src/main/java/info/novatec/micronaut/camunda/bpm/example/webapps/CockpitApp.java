@@ -4,8 +4,8 @@ import org.camunda.bpm.cockpit.impl.web.CockpitApplication;
 import org.glassfish.jersey.server.ResourceConfig;
 
 public class CockpitApp extends ResourceConfig {
-    static CockpitApplication cA = new CockpitApplication();
+    static CockpitApplication cockpitApplication = new CockpitApplication();
     public CockpitApp() {
-        registerClasses(cA.getClasses());
+        registerClasses(cockpitApplication.getClasses());
     }
 }

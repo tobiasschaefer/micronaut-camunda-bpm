@@ -5,10 +5,10 @@ import org.glassfish.jersey.server.ResourceConfig;
 
 public class WelcomeApp extends ResourceConfig {
 
-    static WelcomeApplication wA = new WelcomeApplication();
+    static WelcomeApplication welcomeApplication = new WelcomeApplication();
 
     public WelcomeApp() {
-        registerClasses(wA.getClasses());
+        registerClasses(welcomeApplication.getClasses());
     }
 
 }

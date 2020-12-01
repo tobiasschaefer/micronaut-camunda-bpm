@@ -14,6 +14,6 @@ public class LoggerDelegate implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution delegateExecution) {
-        //log.info("Hello World: {}", delegateExecution);
+        log.info("Hello World: {}", delegateExecution);
     }
 }
