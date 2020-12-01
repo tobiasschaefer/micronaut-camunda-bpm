@@ -72,11 +72,11 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
         // DEF. The servlet dispatcher allows a request to travel from one servlet to other servlets
         EnumSet<DispatcherType> DISPATCHER_TYPES = EnumSet.of(DispatcherType.REQUEST, DispatcherType.INCLUDE, DispatcherType.FORWARD, DispatcherType.ERROR);
 
-        contextHandler.addFilter(ProcessEnginesFilter.class, "/app/*", DISPATCHER_TYPES);
+        /*contextHandler.addFilter(ProcessEnginesFilter.class, "/app/*", DISPATCHER_TYPES);
         contextHandler.addFilter(AuthenticationFilter.class, "/app/*", DISPATCHER_TYPES);
         contextHandler.addFilter(HttpHeaderSecurityFilter.class, "/app/*", DISPATCHER_TYPES);
         contextHandler.addFilter(EmptyBodyFilter.class, "/app/*", DISPATCHER_TYPES);
-        contextHandler.addFilter(CacheControlFilter.class, "/app/*", DISPATCHER_TYPES);
+        contextHandler.addFilter(CacheControlFilter.class, "/app/*", DISPATCHER_TYPES);*/
         // Authentication uses a Session Cookie!
         SessionIdManager idManager = new DefaultSessionIdManager(jettyServer);
         jettyServer.setSessionIdManager(idManager);
@@ -95,10 +95,22 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
 
         private static final EnumSet<DispatcherType> DISPATCHER_TYPES = EnumSet.of(DispatcherType.REQUEST, DispatcherType.INCLUDE, DispatcherType.FORWARD, DispatcherType.ERROR);
 
+        private ServletContext servletContext;
+
+        private FilterRegistration registerFilter(final String filterName, final Class<? extends Filter> filterClass, final String... urlPatterns) {
+            FilterRegistration filterRegistration = servletContext.getFilterRegistration(filterName);
+            if (filterRegistration == null) {
+                filterRegistration = servletContext.addFilter(filterName, filterClass);
+                filterRegistration.addMappingForUrlPatterns(DISPATCHER_TYPES, true, urlPatterns);
+                log.info("Filter {} for URL {} registered", filterName, urlPatterns);
+            }
+            return filterRegistration;
+        }
+
         @Override
         public void contextInitialized(ServletContextEvent sce)
         {
-            ServletContext servletContext = sce.getServletContext();
+            this.servletContext = sce.getServletContext();
 
             servletContext.addServlet("CockpitApp", new ServletContainer(new CockpitApp())).addMapping("/api/cockpit/*");
             servletContext.addServlet("AdminApp", new ServletContainer(new AdminApp())).addMapping("/api/admin/*");
@@ -106,6 +118,7 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
             servletContext.addServlet("EngineRestApp", new ServletContainer(new EngineRestApp())).addMapping("/api/engine/*");
             servletContext.addServlet("WelcomeApp", new ServletContainer(new WelcomeApp())).addMapping("/api/welcome/*");
             log.info("In theory: Servlets are initialized");
+            registerFilter("ProcessEnginesFilter", ProcessEnginesFilter.class, "/api/*", "/app/*");
         }
 
         @Override
