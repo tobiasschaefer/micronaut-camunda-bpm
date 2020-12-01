@@ -7,15 +7,15 @@ import io.micronaut.context.event.BeanCreatedEventListener;
 import org.camunda.bpm.admin.impl.web.bootstrap.AdminContainerBootstrap;
 import org.camunda.bpm.cockpit.Cockpit;
 import org.camunda.bpm.cockpit.impl.web.bootstrap.CockpitContainerBootstrap;
-import org.camunda.bpm.engine.rest.filter.CacheControlFilter;
-import org.camunda.bpm.engine.rest.filter.EmptyBodyFilter;
 import org.camunda.bpm.tasklist.impl.web.bootstrap.TasklistContainerBootstrap;
 import org.camunda.bpm.webapp.impl.security.auth.AuthenticationFilter;
-import org.camunda.bpm.webapp.impl.security.filter.CsrfPreventionFilter;
-import org.camunda.bpm.webapp.impl.security.filter.SecurityFilter;
+import org.camunda.bpm.webapp.impl.security.filter.headersec.HttpHeaderSecurityFilter;
 import org.camunda.bpm.webapp.impl.security.filter.util.HttpSessionMutexListener;
 import org.camunda.bpm.welcome.impl.web.bootstrap.WelcomeContainerBootstrap;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.SessionIdManager;
+import org.eclipse.jetty.server.session.DefaultSessionIdManager;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
 import javax.servlet.*;
+import java.util.Collections;
 import java.util.EnumSet;
 
 /**
@@ -65,10 +66,19 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
 
         log.info("REST API initialized with Micronaut Servlet - try accessing it on http://localhost:8080/rest/engine");
 
+
+        // DEF. The servlet dispatcher allows a request to travel from one servlet to other servlets
         EnumSet<DispatcherType> DISPATCHER_TYPES = EnumSet.of(DispatcherType.REQUEST, DispatcherType.INCLUDE, DispatcherType.FORWARD, DispatcherType.ERROR);
         // Filter to replace the $APP_ROOT stuff
         contextHandler.addFilter(ProcessEnginesFilter.class, "/app/*", DISPATCHER_TYPES);
-        //contextHandler.addFilter(TestFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
+        contextHandler.addFilter(AuthenticationFilter.class, "/app/", DISPATCHER_TYPES);
+        contextHandler.addFilter(HttpHeaderSecurityFilter.class, "/app/*", DISPATCHER_TYPES);
+
+        // Authentication uses a Session Cookie!
+        SessionIdManager idManager = new DefaultSessionIdManager(jettyServer);
+        jettyServer.setSessionIdManager(idManager);
+        SessionHandler sessionHandler = new SessionHandler();
+        contextHandler.setSessionHandler(sessionHandler);
 
         return jettyServer;
     }
@@ -85,7 +95,6 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
         @Override
         public void contextInitialized(ServletContextEvent sce)
         {
-            log.info(Cockpit.getRuntimeDelegate().getAppPluginRegistry().getPlugins().get(0).getId());
             ServletContext servletContext = sce.getServletContext();
 
             servletContext.addServlet("CockpitApp", new ServletContainer(new CockpitApp())).addMapping("/api/cockpit/*");
@@ -93,6 +102,12 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
             servletContext.addServlet("TasklistApp", new ServletContainer(new TasklistApp())).addMapping("/api/tasklist/*");
             servletContext.addServlet("EngineRestApp", new ServletContainer(new EngineRestApp())).addMapping("/api/engine/*");
             servletContext.addServlet("WelcomeApp", new ServletContainer(new WelcomeApp())).addMapping("/api/welcome/*");
+            // Set SessionManager
+            servletContext.setSessionTrackingModes(Collections.singleton(SessionTrackingMode.COOKIE));
+            //log.info(servletContext.getEffectiveSessionTrackingModes().toString());
+            //servletContext.setSessionTrackingModes(Collections.singleton(SessionTrackingMode.COOKIE));
+            //log.info(servletContext.getDefaultSessionTrackingModes().toString());
+            //log.info(servletContext.getEffectiveSessionTrackingModes().toString());
             log.info("In theory: Servlets are initialized");
         }
 

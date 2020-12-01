@@ -13,11 +13,4 @@ micronaut:
           - "classpath:/META-INF/resources/"
         mapping: "/**"
 
-camunda.bpm:
-  admin-user:
-    id: demo
-    password: demo
-  filter:
-    create: All tasks
-
 camunda.bpm.telemetry.initializeTelemetry: true
