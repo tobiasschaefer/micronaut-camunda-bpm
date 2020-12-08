@@ -47,17 +47,20 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
 
         Server jettyServer = event.getBean();
 
+        // Funny thing: When I serve static resources via application.yml I already get a port here :)
+        // Right now it's -1 meaning it properly will be set later?
+        log.info(String.valueOf(jettyServer.getURI().getPort()));
+
         ServletContextHandler contextHandler = (ServletContextHandler) jettyServer.getHandler();
 
-        //contextHandler.setContextPath("/default");
-
         // REST
-        ServletContextHandler helperHandler = new ServletContextHandler();
-        helperHandler.setContextPath("/engine-rest");
+        ServletContextHandler restServletContextHandler = new ServletContextHandler();
+        restServletContextHandler.setContextPath("/engine-rest");
         ServletHolder servletHolder = new ServletHolder(new ServletContainer(new RestApp()));
-        helperHandler.addServlet(servletHolder, "/*");
+        restServletContextHandler.addServlet(servletHolder, "/*");
 
-        //Witzigerweise ist auf diese Art und Weise der Port noch undefined! Aber wenn ich es über die applicatoin.yml registriere, dann geht das super. -.-
+        //Witzigerweise ist auf diese Art und Weise der Port noch undefined!
+        // Aber wenn ich es über die applicatoin.yml registriere, dann habe ich hier bereits den Port. -.-
         log.info("REST API initialized, try to access it on {}:{}/rest/engine", jettyServer.getURI().toString(), jettyServer.getURI().getPort());
 
         // WEBAPPS
@@ -68,24 +71,25 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
         Resource pluginsResource = Resource.newClassPathResource("/META-INF/resources");
         ResourceCollection resources = new ResourceCollection(webappsResource, pluginsResource);
         //In tutorial that was a ContextHandler
-        ServletContextHandler webappsStaticContext = new ServletContextHandler();
-        webappsStaticContext.setContextPath("/camunda");
-        webappsStaticContext.setBaseResource(resources);
+        ServletContextHandler webappsContextHandler = new ServletContextHandler();
+        webappsContextHandler.setContextPath("/camunda");
+        webappsContextHandler.setBaseResource(resources);
 
-        webappsStaticContext.addEventListener(new CockpitContainerBootstrap());
-        webappsStaticContext.addEventListener(new AdminContainerBootstrap());
-        webappsStaticContext.addEventListener(new TasklistContainerBootstrap());
-        webappsStaticContext.addEventListener(new WelcomeContainerBootstrap());
-        webappsStaticContext.addEventListener(new HttpSessionMutexListener());
-        webappsStaticContext.addEventListener(new ServletContextInitializedListener());
+        webappsContextHandler.addEventListener(new CockpitContainerBootstrap());
+        webappsContextHandler.addEventListener(new AdminContainerBootstrap());
+        webappsContextHandler.addEventListener(new TasklistContainerBootstrap());
+        webappsContextHandler.addEventListener(new WelcomeContainerBootstrap());
+        webappsContextHandler.addEventListener(new HttpSessionMutexListener());
+        webappsContextHandler.addEventListener(new ServletContextInitializedListener());
 
-        webappsStaticContext.insertHandler(webappsResourceHandler);
+        webappsContextHandler.insertHandler(webappsResourceHandler);
         log.info("Access the WEBAPPS here {}:{}/camunda/app/welcome/default", jettyServer.getURI().toString(), jettyServer.getURI().getPort());
 
         //Registers SessionTrackingMode.COOKIE, SessionTrackingMode.URL <- I need Cookie
         SessionHandler sessionHandler = new SessionHandler();
-        webappsStaticContext.setSessionHandler(sessionHandler);
-        /* OLD REGISTRATION
+        webappsContextHandler.setSessionHandler(sessionHandler);
+
+        /* For OLD REGISTRATION on defaultServlet
         contextHandler.addEventListener(new CockpitContainerBootstrap());
         contextHandler.addEventListener(new AdminContainerBootstrap());
         contextHandler.addEventListener(new TasklistContainerBootstrap());
@@ -95,10 +99,8 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
         SessionHandler sessionHandler = new SessionHandler();
         contextHandler.setSessionHandler(sessionHandler);*/
 
-
-
-        // Multiple handlers for same path => Check which matches first (Reihenfolge wichtig)
-        ContextHandlerCollection contexts = new ContextHandlerCollection(webappsStaticContext,helperHandler , contextHandler);
+        // Multiple handlers for same path => Check which matches first
+        ContextHandlerCollection contexts = new ContextHandlerCollection(webappsContextHandler,restServletContextHandler , contextHandler);
         jettyServer.setHandler(contexts);
 
         return jettyServer;
