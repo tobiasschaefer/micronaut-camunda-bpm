@@ -15,13 +15,11 @@ import org.camunda.bpm.webapp.impl.security.filter.headersec.HttpHeaderSecurityF
 import org.camunda.bpm.webapp.impl.security.filter.util.HttpSessionMutexListener;
 import org.camunda.bpm.welcome.impl.web.bootstrap.WelcomeContainerBootstrap;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.PathResource;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -30,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
 import javax.servlet.*;
-import java.nio.file.Paths;
 import java.util.EnumSet;
 
 /**
@@ -135,7 +132,6 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
             servletContext.addServlet("TasklistApp", new ServletContainer(new TasklistApp())).addMapping("/api/tasklist/*");
             servletContext.addServlet("EngineRestApp", new ServletContainer(new EngineRestApp())).addMapping("/api/engine/*");
             servletContext.addServlet("WelcomeApp", new ServletContainer(new WelcomeApp())).addMapping("/api/welcome/*");
-            log.info(servletContext.getContextPath().toString());
             log.info("Webapps Servlets registered");
             registerFilter("ProcessEnginesFilter", ProcessEnginesFilter.class, "/api/*", "/app/*");
             registerFilter("AuthenticationFilter", AuthenticationFilter.class, "/api/*", "/app/*");
