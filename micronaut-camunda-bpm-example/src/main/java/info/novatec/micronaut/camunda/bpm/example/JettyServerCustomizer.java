@@ -15,15 +15,22 @@ import org.camunda.bpm.webapp.impl.security.filter.headersec.HttpHeaderSecurityF
 import org.camunda.bpm.webapp.impl.security.filter.util.HttpSessionMutexListener;
 import org.camunda.bpm.welcome.impl.web.bootstrap.WelcomeContainerBootstrap;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.PathResource;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceCollection;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
 import javax.servlet.*;
+import java.nio.file.Paths;
 import java.util.EnumSet;
 
 /**
@@ -45,21 +52,53 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
 
         ServletContextHandler contextHandler = (ServletContextHandler) jettyServer.getHandler();
 
+        // REST
+        ServletContextHandler helperHandler = new ServletContextHandler();
+        helperHandler.setContextPath("/engine-rest");
         ServletHolder servletHolder = new ServletHolder(new ServletContainer(new RestApp()));
-        contextHandler.addServlet(servletHolder, "/rest/*");
-        log.info("REST API initialized, try to access it on {}/rest/engine", jettyServer.getURI().toString());
+        helperHandler.addServlet(servletHolder, "/*");
+        log.info("REST API initialized, try to access it on {}:{}/rest/engine", jettyServer.getURI().toString(), jettyServer.getURI().getPort());
 
+        // WEBAPPS
+        ResourceHandler webappsResourceHandler = new ResourceHandler();
+        webappsResourceHandler.setDirectoriesListed(false);
+
+        Resource webappsResource = Resource.newClassPathResource("/META-INF/resources/webjars/camunda");
+        Resource pluginsResource = Resource.newClassPathResource("/META-INF/resources");
+        ResourceCollection resources = new ResourceCollection(webappsResource, pluginsResource);
+        //In tutorial that was a ContextHandler
+        ServletContextHandler webappsStaticContext = new ServletContextHandler();
+        webappsStaticContext.setContextPath("/camunda");
+        webappsStaticContext.setBaseResource(resources);
+
+        webappsStaticContext.addEventListener(new CockpitContainerBootstrap());
+        webappsStaticContext.addEventListener(new AdminContainerBootstrap());
+        webappsStaticContext.addEventListener(new TasklistContainerBootstrap());
+        webappsStaticContext.addEventListener(new WelcomeContainerBootstrap());
+        webappsStaticContext.addEventListener(new HttpSessionMutexListener());
+        webappsStaticContext.addEventListener(new ServletContextInitializedListener());
+
+        webappsStaticContext.insertHandler(webappsResourceHandler);
+
+
+        //Registers SessionTrackingMode.COOKIE, SessionTrackingMode.URL <- I need Cookie
+        SessionHandler sessionHandler = new SessionHandler();
+        webappsStaticContext.setSessionHandler(sessionHandler);
+        /* OLD REGISTRATION
         contextHandler.addEventListener(new CockpitContainerBootstrap());
         contextHandler.addEventListener(new AdminContainerBootstrap());
         contextHandler.addEventListener(new TasklistContainerBootstrap());
         contextHandler.addEventListener(new WelcomeContainerBootstrap());
         contextHandler.addEventListener(new HttpSessionMutexListener());
-
         contextHandler.addEventListener(new ServletContextInitializedListener());
-
-        //Registers SessionTrackingMode.COOKIE, SessionTrackingMode.URL <- I need Cookie
         SessionHandler sessionHandler = new SessionHandler();
-        contextHandler.setSessionHandler(sessionHandler);
+        contextHandler.setSessionHandler(sessionHandler);*/
+
+
+
+        // Multiple handlers for same path => Check which matches first (Reihenfolge wichtig)
+        ContextHandlerCollection contexts = new ContextHandlerCollection(helperHandler, webappsStaticContext, contextHandler);
+        jettyServer.setHandler(contexts);
 
         return jettyServer;
     }
@@ -92,6 +131,7 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
             servletContext.addServlet("TasklistApp", new ServletContainer(new TasklistApp())).addMapping("/api/tasklist/*");
             servletContext.addServlet("EngineRestApp", new ServletContainer(new EngineRestApp())).addMapping("/api/engine/*");
             servletContext.addServlet("WelcomeApp", new ServletContainer(new WelcomeApp())).addMapping("/api/welcome/*");
+            log.info(servletContext.getContextPath().toString());
             log.info("Webapps Servlets registered");
             registerFilter("ProcessEnginesFilter", ProcessEnginesFilter.class, "/api/*", "/app/*");
             registerFilter("AuthenticationFilter", AuthenticationFilter.class, "/api/*", "/app/*");

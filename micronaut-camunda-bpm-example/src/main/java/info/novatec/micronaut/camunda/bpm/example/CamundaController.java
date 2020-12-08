@@ -11,7 +11,7 @@ import org.camunda.bpm.engine.repository.ResourceDefinition;
 
 import java.util.stream.Collectors;
 
-@Controller("/camunda")
+@Controller("/default")
 public class CamundaController {
 
     private final ProcessEngine processEngine;
