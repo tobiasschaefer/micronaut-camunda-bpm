@@ -52,11 +52,15 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
 
         ServletContextHandler contextHandler = (ServletContextHandler) jettyServer.getHandler();
 
+        //contextHandler.setContextPath("/default");
+
         // REST
         ServletContextHandler helperHandler = new ServletContextHandler();
         helperHandler.setContextPath("/engine-rest");
         ServletHolder servletHolder = new ServletHolder(new ServletContainer(new RestApp()));
         helperHandler.addServlet(servletHolder, "/*");
+
+        //Witzigerweise ist auf diese Art und Weise der Port noch undefined! Aber wenn ich es über die applicatoin.yml registriere, dann geht das super. -.-
         log.info("REST API initialized, try to access it on {}:{}/rest/engine", jettyServer.getURI().toString(), jettyServer.getURI().getPort());
 
         // WEBAPPS
@@ -79,7 +83,7 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
         webappsStaticContext.addEventListener(new ServletContextInitializedListener());
 
         webappsStaticContext.insertHandler(webappsResourceHandler);
-
+        log.info("Access the WEBAPPS here {}:{}/camunda/app/welcome/default", jettyServer.getURI().toString(), jettyServer.getURI().getPort());
 
         //Registers SessionTrackingMode.COOKIE, SessionTrackingMode.URL <- I need Cookie
         SessionHandler sessionHandler = new SessionHandler();
@@ -97,7 +101,7 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
 
 
         // Multiple handlers for same path => Check which matches first (Reihenfolge wichtig)
-        ContextHandlerCollection contexts = new ContextHandlerCollection(helperHandler, webappsStaticContext, contextHandler);
+        ContextHandlerCollection contexts = new ContextHandlerCollection(webappsStaticContext,helperHandler , contextHandler);
         jettyServer.setHandler(contexts);
 
         return jettyServer;
