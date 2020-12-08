@@ -18,6 +18,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
+import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
@@ -65,10 +66,15 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
         Resource pluginsResource = Resource.newClassPathResource("/META-INF/resources");
         ResourceCollection resources = new ResourceCollection(webappsResource, pluginsResource);
         //In tutorial that was a ContextHandler
+        Servlet x = new DefaultServlet();
+        ServletHolder holder = new ServletHolder("x", x);
+
+
         ServletContextHandler webappsContextHandler = new ServletContextHandler();
+        webappsContextHandler.addServlet(holder, "/*");
         webappsContextHandler.setContextPath("/camunda");
         webappsContextHandler.setBaseResource(resources);
-        webappsContextHandler.insertHandler(webappsResourceHandler);
+        //webappsContextHandler.insertHandler(webappsResourceHandler);
 
         webappsContextHandler.addEventListener(new CockpitContainerBootstrap());
         webappsContextHandler.addEventListener(new AdminContainerBootstrap());
