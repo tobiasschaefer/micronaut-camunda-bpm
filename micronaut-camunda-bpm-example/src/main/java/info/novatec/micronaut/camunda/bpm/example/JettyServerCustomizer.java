@@ -1,9 +1,11 @@
 package info.novatec.micronaut.camunda.bpm.example;
 
-import info.novatec.micronaut.camunda.bpm.example.webapps.*;
 import info.novatec.micronaut.camunda.bpm.example.rest.RestApp;
+import info.novatec.micronaut.camunda.bpm.example.webapps.*;
 import io.micronaut.context.event.BeanCreatedEvent;
 import io.micronaut.context.event.BeanCreatedEventListener;
+import io.micronaut.transaction.SynchronousTransactionManager;
+import org.apache.ibatis.transaction.jdbc.JdbcTransaction;
 import org.camunda.bpm.admin.impl.web.bootstrap.AdminContainerBootstrap;
 import org.camunda.bpm.cockpit.impl.web.bootstrap.CockpitContainerBootstrap;
 import org.camunda.bpm.engine.rest.filter.CacheControlFilter;
@@ -28,6 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
 import javax.servlet.*;
+import javax.sql.DataSource;
+import java.sql.Connection;
 import java.util.EnumSet;
 
 /**
@@ -41,6 +45,21 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
 
     private static final Logger log = LoggerFactory.getLogger(JettyServerCustomizer.class);
 
+    /**
+     Injecting the {@link SynchronousTransactionManager} here makes sure that the following scenario works:
+     Cockpit - Process Definitions - Any Definition, e.g. HelloWorld
+
+     Set a breakpoint in {@link JdbcTransaction#openConnection()} to see which data source is being used:
+     Works: {@link io.micronaut.configuration.jdbc.hikari.HikariUrlDataSource}
+     Doesn't work: {@link io.micronaut.transaction.jdbc.TransactionAwareDataSource}.
+
+     In case of TransactionAwareDataSource a {@link io.micronaut.transaction.jdbc.exceptions.CannotGetJdbcConnectionException}
+     will be thrown in {@link io.micronaut.transaction.jdbc.DataSourceUtils#doGetConnection(DataSource, boolean)} because
+     "allowCreate" is false.
+     */
+    public JettyServerCustomizer(SynchronousTransactionManager<Connection> transactionManager) {
+        log.trace("Transaction Manager has been initialized: {}", transactionManager);
+    }
 
     @Override
     public Server onCreated(BeanCreatedEvent<Server> event) {
