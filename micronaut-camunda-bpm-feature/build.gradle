@@ -37,6 +37,10 @@ dependencies {
     // Test
     testImplementation("org.mockito:mockito-core:3.6.28")
     testRuntimeOnly("com.h2database:h2")
+
+    //compileOnly("org.eclipse.jetty:jetty-util:9.4.34.v20201102")
+    //implementation("io.micronaut.servlet:micronaut-http-server-jetty")
+    compileOnly("io.micronaut:micronaut-http-server-netty:2.2.1")
 }
 
 java {
