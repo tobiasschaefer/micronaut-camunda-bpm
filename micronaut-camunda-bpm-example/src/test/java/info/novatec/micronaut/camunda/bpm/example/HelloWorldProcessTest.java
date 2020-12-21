@@ -1,6 +1,7 @@
 package info.novatec.micronaut.camunda.bpm.example;
 
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import org.camunda.bpm.dmn.engine.DmnEngine;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,9 @@ class HelloWorldProcessTest {
 
     @Inject
     RuntimeService runtimeService;
+
+    @Inject
+    DmnEngine dmnEngine;
 
     @Test
     void happyPath() {
