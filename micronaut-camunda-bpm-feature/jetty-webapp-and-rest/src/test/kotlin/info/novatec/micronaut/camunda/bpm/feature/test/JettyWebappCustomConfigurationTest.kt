@@ -1,5 +1,6 @@
 package info.novatec.micronaut.camunda.bpm.feature.test
 
+import info.novatec.micronaut.camunda.bpm.feature.Configuration
 import io.micronaut.context.annotation.Requires
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpResponse
@@ -11,26 +12,34 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
 
-/**
- * Simple Test to check if the Webapps run.
- *
- * @author Martin Sawilla
- */
-@MicronautTest
 @Requires(beans = [Server::class])
-class JettyWebappTest {
+@MicronautTest(propertySources = ["classpath:applicationCustomConfiguration.yml"])
+class JettyWebappCustomConfigurationTest {
 
     @Inject
-    @field:Client("/camunda")
+    lateinit var configuration: Configuration
+
+    @Inject
+    @field:Client("/custom-path-webapps")
     lateinit var client: RxHttpClient
 
     @Test()
-    fun redirect() {
+    fun redirectFail() {
+        // FIXME Does not work?!
         val request: HttpRequest<String> = HttpRequest.GET("/")
         val res: HttpResponse<*> = client.toBlocking().exchange<String, Any>(request)
-        Assertions.assertEquals(200, res.status().code)
-        Assertions.assertEquals("text/html", res.header("Content-Type"))
+        res.headers.forEach { it -> println(it.key +" "+ it.value) }
+        println(res.body())
+        Assertions.assertEquals(404, res.status().code)
     }
+
+    @Test
+    fun testConfiguration() {
+        Assertions.assertEquals(false, configuration.webapps.isIndexRedirectEnabled)
+        Assertions.assertEquals("/custom-path-webapps", configuration.webapps.contextPath)
+        Assertions.assertEquals("/custom-path-engine", configuration.rest.contextPath)
+    }
+
 
     @Test
     fun welcome() {

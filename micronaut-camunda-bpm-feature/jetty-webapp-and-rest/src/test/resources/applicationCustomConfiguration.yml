@@ -1,6 +1,3 @@
-micronaut:
-  application:
-    name: jetty-webapp-and-rest
 camunda:
   bpm:
     admin-user:
@@ -11,7 +8,8 @@ camunda:
       email: donald@duck.com
     webapps:
       enabled: true
-      context-path: /camunda
+      context-path: /custom-path-webapps
+      index-redirect-enabled: false
     rest:
       enabled: true
-      context-path: /engine-rest
+      context-path: /custom-path-engine
