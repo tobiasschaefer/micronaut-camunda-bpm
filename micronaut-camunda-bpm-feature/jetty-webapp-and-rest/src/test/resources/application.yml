@@ -1,19 +1,18 @@
 micronaut:
   application:
-    name: micronaut-camunda-example
+    name: jetty-webapp-and-rest
 camunda:
   bpm:
+    telemetry.initializeTelemetry: true
     admin-user:
       id: admin
       password: admin
       firstname: Donald
       lastname: Duck
       email: donald@duck.com
-    generic-properties:
-      properties:
-        initialize-telemetry: true
     webapps:
       enabled: true
-      index-redirect-enabled: false
+      context-path: /camunda
     rest:
       enabled: true
+      context-path: /engine-rest
