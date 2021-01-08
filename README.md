@@ -36,6 +36,7 @@ Micronaut + Camunda BPM = :heart:
 * The [process engine configuration](#custom-process-engine-configuration) and the [job executor configuration](#custom-jobexecutor-configuration) can be customized programmatically.
 * A Camunda admin user is created if configured by [properties](#properties) and not present yet (including admin group and authorizations).
 * Camunda BPM's telemetry feature is automatically deactivated during test execution 
+* Camunda REST API and Webapps (currently only for Jetty)
 
 # Getting Started
 
@@ -183,6 +184,23 @@ public String startHelloWorldProcess() {
     return runtimeService.startProcessInstanceByKey("HelloWorld").getId();
 }
 ```
+## REST API and Webapps
+Currently, we support the REST API and Webapps only for **Jetty**. 
+To use them in your project, you have to change the `micronaut runtime` of your project to `jetty`. By Default, they 
+are **not enabled**. You have to configure them e.g. in an application.yaml as follows:
+```yaml
+camunda:
+  bpm:  
+    webapps:
+      enabled: true
+    rest:
+      enabled: true
+```
+Further Information:
+* The authorization for the REST API is not implemented yet.
+* To e.g. get the engine from the REST API you can use `/engine-rest/engine`.
+* The default to access the webapps is `/camunda`. You get redirected to the WelcomeApp.
+* You can set up a default user that will be created on start of your application. See [Configuration](##configuration).
 
 ## Configuration
 
@@ -218,6 +236,11 @@ You may use the following properties (typically in application.yml) to configure
 | camunda.bpm.admin-user| .firstname      |                                               | Admin's firstname (mandatory if the id is present) |
 | camunda.bpm.admin-user| .lastname       |                                               | Admin's lastname (mandatory if the id is present) |
 | camunda.bpm.admin-user| .email          |                                               | Admin's email address (optional) |
+| camunda.bpm.rest      | .enabled         | false                                        | Enable the REST API |
+| camunda.bpm.rest      | .context-path    | /engine-rest                                 | Context-path for the REST API |
+| camunda.bpm.webapps   | .enabled         | false                                        | Enable the webapps |
+| camunda.bpm.webapps   | .context-path    | /camunda                                     | Context-path for the Webapps |
+| camunda.bpm.webapps   | .index-redirect-enabled| true                                   | Registers a redirect from / to the Webapps. |
 
 ## Generic Properties
 
