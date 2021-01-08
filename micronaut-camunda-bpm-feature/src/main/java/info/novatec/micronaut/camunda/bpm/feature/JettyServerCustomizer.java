@@ -6,6 +6,7 @@ import io.micronaut.context.event.BeanCreatedEvent;
 import io.micronaut.context.event.BeanCreatedEventListener;
 import org.camunda.bpm.admin.impl.web.bootstrap.AdminContainerBootstrap;
 import org.camunda.bpm.cockpit.impl.web.bootstrap.CockpitContainerBootstrap;
+import org.camunda.bpm.engine.rest.security.auth.ProcessEngineAuthenticationFilter;
 import org.camunda.bpm.engine.rest.filter.CacheControlFilter;
 import org.camunda.bpm.engine.rest.filter.EmptyBodyFilter;
 import org.camunda.bpm.tasklist.impl.web.bootstrap.TasklistContainerBootstrap;
@@ -18,6 +19,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
@@ -63,6 +65,13 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
             restServletContextHandler.setContextPath(configuration.getRest().getContextPath());
             ServletHolder servletHolder = new ServletHolder(new ServletContainer(new RestApp()));
             restServletContextHandler.addServlet(servletHolder, "/*");
+
+            if (configuration.getRest().isBasicAuthEnabled()) {
+                FilterHolder filterHolder = new FilterHolder(ProcessEngineAuthenticationFilter.class);
+                filterHolder.setInitParameter("authentication-provider", "org.camunda.bpm.engine.rest.security.auth.impl.HttpBasicAuthenticationProvider");
+                restServletContextHandler.addFilter(filterHolder, "/*", EnumSet.of(REQUEST, INCLUDE, FORWARD, ERROR));
+                log.info("REST API - Basic authentication enabled");
+            }
 
             contextHandlerCollection.addHandler(restServletContextHandler);
 

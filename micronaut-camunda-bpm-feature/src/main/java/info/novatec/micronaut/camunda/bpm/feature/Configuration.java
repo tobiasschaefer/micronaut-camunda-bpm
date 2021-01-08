@@ -78,6 +78,9 @@ public interface Configuration {
 
         @Bindable(defaultValue = "/engine-rest")
         String getContextPath();
+
+        @Bindable(defaultValue = "false")
+        boolean isBasicAuthEnabled();
     }
 
 }

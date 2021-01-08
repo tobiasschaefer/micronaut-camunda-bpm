@@ -197,10 +197,9 @@ camunda:
       enabled: true
 ```
 Further Information:
-* The authorization for the REST API is not implemented yet.
 * To e.g. get the engine from the REST API you can use `/engine-rest/engine`.
 * The default to access the webapps is `/camunda`. You get redirected to the WelcomeApp.
-* You can set up a default user that will be created on start of your application. See [Configuration](##configuration).
+* See [Configuration](##configuration) for how to create a default user or how to enable basic authentication.
 
 ## Configuration
 
@@ -238,6 +237,7 @@ You may use the following properties (typically in application.yml) to configure
 | camunda.bpm.admin-user| .email          |                                               | Admin's email address (optional) |
 | camunda.bpm.rest      | .enabled         | false                                        | Enable the REST API |
 | camunda.bpm.rest      | .context-path    | /engine-rest                                 | Context-path for the REST API |
+| camunda.bpm.rest      | .basic-auth-enabled | false                                     | Enables basic authentication. Any engine-specific request will be authenticated against that engine’s identity service. To exchange the default Authentication Provider see https://docs.camunda.org/manual/latest/reference/rest/overview/authentication/ |
 | camunda.bpm.webapps   | .enabled         | false                                        | Enable the webapps |
 | camunda.bpm.webapps   | .context-path    | /camunda                                     | Context-path for the Webapps |
 | camunda.bpm.webapps   | .index-redirect-enabled| true                                   | Registers a redirect from / to the Webapps. |
