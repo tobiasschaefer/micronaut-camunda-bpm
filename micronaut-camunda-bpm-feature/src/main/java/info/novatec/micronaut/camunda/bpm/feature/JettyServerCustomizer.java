@@ -36,6 +36,7 @@ import static javax.servlet.DispatcherType.*;
 
 /**
  * Using Micronaut Servlet with Jetty to run the REST API as a servlet.
+ *
  * https://micronaut-projects.github.io/micronaut-servlet/1.0.x/guide/#jetty
  *
  * @author Martin Sawilla
@@ -63,14 +64,13 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
         if (configuration.getRest().isEnabled()) {
             ServletContextHandler restServletContextHandler = new ServletContextHandler();
             restServletContextHandler.setContextPath(configuration.getRest().getContextPath());
-            ServletHolder servletHolder = new ServletHolder(new ServletContainer(new RestApp()));
-            restServletContextHandler.addServlet(servletHolder, "/*");
+            restServletContextHandler.addServlet(new ServletHolder(new ServletContainer(new RestApp())), "/*");
 
             if (configuration.getRest().isBasicAuthEnabled()) {
                 FilterHolder filterHolder = new FilterHolder(ProcessEngineAuthenticationFilter.class);
                 filterHolder.setInitParameter("authentication-provider", "org.camunda.bpm.engine.rest.security.auth.impl.HttpBasicAuthenticationProvider");
                 restServletContextHandler.addFilter(filterHolder, "/*", EnumSet.of(REQUEST, INCLUDE, FORWARD, ERROR));
-                log.info("REST API - Basic authentication enabled");
+                log.debug("REST API - Basic authentication enabled");
             }
 
             contextHandlerCollection.addHandler(restServletContextHandler);
@@ -109,9 +109,11 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
         return jettyServer;
     }
 
-    /*  I need to configure the Camunda Webapps here because in the JettyServerCustomizer.onCreated() method
-    I do not have access to e.g. Cockpit.getRuntimeDelegate() (results in null). But here the Cockpit.getRuntimeDelegate() does not return null.
+    /**
+      The configuration of the Camunda Webapps is called with a ServletContextListener because in
+      JettyServerCustomizer#onCreated the call to Cockpit.getRuntimeDelegate() would return null.
      */
+    //TODO Martin is Cockpit.getRuntimeDelegate() ever called at all?
     static class ServletContextInitializedListener implements ServletContextListener {
         private static final Logger log = LoggerFactory.getLogger(ServletContextInitializedListener.class);
 
@@ -136,7 +138,6 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
             registerFilter("HttpHeaderSecurityFilter", HttpHeaderSecurityFilter.class, "/api/*", "/app/*");
             registerFilter("EmptyBodyFilter", EmptyBodyFilter.class, "/api/*", "/app/*");
             registerFilter("CacheControlFilter", CacheControlFilter.class, "/api/*", "/app/*");
-
         }
 
         @Override
@@ -147,7 +148,7 @@ public class JettyServerCustomizer implements BeanCreatedEventListener<Server> {
             if (filterRegistration == null) {
                 filterRegistration = servletContext.addFilter(filterName, filterClass);
                 filterRegistration.addMappingForUrlPatterns(DISPATCHER_TYPES, true, urlPatterns);
-                log.info("Filter {} for URL {} registered", filterName, urlPatterns);
+                log.debug("Filter {} for URL {} registered", filterName, urlPatterns);
             }
         }
     }

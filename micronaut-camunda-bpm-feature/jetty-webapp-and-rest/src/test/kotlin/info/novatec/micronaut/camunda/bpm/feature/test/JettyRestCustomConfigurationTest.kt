@@ -11,12 +11,13 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.micronaut.test.support.TestPropertyProvider
 import org.eclipse.jetty.server.Server
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import javax.inject.Inject
 
 /**
- * Simple Test to check if the REST API runs on the configured context path and if basic auth is working.
+ * Test REST API on Jetty.
  *
  * @author Martin Sawilla
  */
@@ -49,7 +50,7 @@ class JettyRestCustomConfigurationTest : TestPropertyProvider {
         val request: HttpRequest<String> = HttpRequest.GET(configuration.rest.contextPath + "/engine")
         val body = client.toBlocking().retrieve(request)
 
-        Assertions.assertEquals("""[{"name":"default"}]""", body)
+        assertEquals("""[{"name":"default"}]""", body)
     }
 
     @Test
@@ -57,7 +58,7 @@ class JettyRestCustomConfigurationTest : TestPropertyProvider {
         val request: HttpRequest<String> =
             HttpRequest.GET(configuration.rest.contextPath + "/user/admin/profile")
 
-        Assertions.assertThrows(HttpClientResponseException::class.java) {
+        assertThrows(HttpClientResponseException::class.java) {
             client.toBlocking().retrieve(request)
         }
     }
@@ -69,7 +70,7 @@ class JettyRestCustomConfigurationTest : TestPropertyProvider {
         request.basicAuth("admin", "password")
         val body = client.toBlocking().retrieve(request)
 
-        Assertions.assertEquals(
+        assertEquals(
             """{"id":"admin","firstName":"Firstname","lastName":"Lastname","email":"admin@admin.de"}""", body)
     }
 }

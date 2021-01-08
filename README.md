@@ -33,10 +33,10 @@ Micronaut + Camunda BPM = :heart:
 * Micronaut beans are resolved from the application context if they are [referenced by expressions or Java class names](#invoking-java-delegates) within the process models.
 * The process engine [integrates with Micronaut's transaction manager](#using-micronaut-data-jdbc-or-micronaut-data-jpa). Optionally, micronaut-data-jdbc or micronaut-data-jpa are supported.
 * The process engine can be configured with [generic properties](#generic-properties).
+* The [Camunda REST API and the Webapps](#rest-api-and-webapps) are supported (currently only for Jetty).
 * The [process engine configuration](#custom-process-engine-configuration) and the [job executor configuration](#custom-jobexecutor-configuration) can be customized programmatically.
 * A Camunda admin user is created if configured by [properties](#properties) and not present yet (including admin group and authorizations).
-* Camunda BPM's telemetry feature is automatically deactivated during test execution 
-* Camunda REST API and Webapps (currently only for Jetty)
+* Camunda BPM's telemetry feature is automatically deactivated during test execution
 
 # Getting Started
 
@@ -185,9 +185,29 @@ public String startHelloWorldProcess() {
 }
 ```
 ## REST API and Webapps
-Currently, we support the REST API and Webapps only for **Jetty**. 
-To use them in your project, you have to change the `micronaut runtime` of your project to `jetty`. By Default, they 
-are **not enabled**. You have to configure them e.g. in an application.yaml as follows:
+
+Currently, we support the REST API and Webapps (Cockpit, Task list, and Admin) on the Server Runtime Jetty. 
+
+To use them in your project, you have to set the `micronaut runtime` of your project to `jetty`, e.g.
+
+micronaut-gradle-plugin configuration in build.gradle:
+```groovy
+micronaut {
+  runtime("jetty")
+  [...]
+}
+```
+
+micronaut-maven-plugin configuration in pom.xml:
+```xml
+<properties>
+  [...]
+  <micronaut.runtime>jetty</micronaut.runtime>
+</properties>
+```
+
+By default, REST and the Webapps are not enabled. You have to configure them e.g. in an application.yaml as follows:
+
 ```yaml
 camunda:
   bpm:  
@@ -196,10 +216,11 @@ camunda:
     rest:
       enabled: true
 ```
+
 Further Information:
-* To e.g. get the engine from the REST API you can use `/engine-rest/engine`.
-* The default to access the webapps is `/camunda`. You get redirected to the WelcomeApp.
-* See [Configuration](##configuration) for how to create a default user or how to enable basic authentication.
+* The Webapps are by default available at `/camunda`. By default, `/` will redirect you there.
+* The REST API is by default available at `/engine-rest/engine`, e.g. to get the engine name use `GET /engine-rest/engine`.
+* See [Configuration Properties](#properties) on how to enable basic authentication for REST, create a default user, or disable the redirect.
 
 ## Configuration
 
@@ -237,8 +258,8 @@ You may use the following properties (typically in application.yml) to configure
 | camunda.bpm.admin-user| .email          |                                               | Admin's email address (optional) |
 | camunda.bpm.rest      | .enabled         | false                                        | Enable the REST API |
 | camunda.bpm.rest      | .context-path    | /engine-rest                                 | Context-path for the REST API |
-| camunda.bpm.rest      | .basic-auth-enabled | false                                     | Enables basic authentication. Any engine-specific request will be authenticated against that engine’s identity service. To exchange the default Authentication Provider see https://docs.camunda.org/manual/latest/reference/rest/overview/authentication/ |
-| camunda.bpm.webapps   | .enabled         | false                                        | Enable the webapps |
+| camunda.bpm.rest      | .basic-auth-enabled | false                                     | Enables basic authentication. Any engine-specific request will be authenticated against the engine’s identity service. To replace the default Authentication Provider see https://docs.camunda.org/manual/latest/reference/rest/overview/authentication/ |
+| camunda.bpm.webapps   | .enabled         | false                                        | Enable the webapps (Cockpit, Task list, Admin) |
 | camunda.bpm.webapps   | .context-path    | /camunda                                     | Context-path for the Webapps |
 | camunda.bpm.webapps   | .index-redirect-enabled| true                                   | Registers a redirect from / to the Webapps. |
 
