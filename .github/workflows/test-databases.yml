@@ -1,0 +1,49 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Test Databases
+
+on:
+  push:
+    branches: [ '**' ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Cache Dependencies #see https://github.com/actions/cache/blob/master/examples.md#java---gradle
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Build with Gradle Wrapper
+        env:
+          DATASOURCES_DEFAULT_URL: jdbc:postgresql://localhost:5432/postgres
+          DATASOURCES_DEFAULT_USERNAME: postgres
+          DATASOURCES_DEFAULT_PASSWORD: postgres
+          DATASOURCES_DEFAULT_DRIVER_CLASS_NAME: org.postgresql.Driver
+        run: ./gradlew build --warning-mode=fail
