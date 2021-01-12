@@ -10,6 +10,7 @@ import org.camunda.bpm.engine.history.HistoricProcessInstance
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.sql.Connection
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -104,11 +105,11 @@ open class MnProcessEngineConfigurationTransactionTest {
     }
 
     companion object {
-        const val WITH_COMMIT = "withCommit"
-        const val WITH_ROLLBACK = "withRollback"
-        const val TX_WITH_COMMIT = "surroundingTxWithCommit"
-        const val TX_WITH_ROLLBACK = "surroundingTxWithRollback"
-        const val WITH_COMMIT_COMMIT = "noSurroundingTxWithCommit"
-        const val WITH_COMMIT_ROLLBACK = "NoSurroundingTxWithRollback"
+        val WITH_COMMIT = "withCommit" + UUID.randomUUID().toString()
+        val WITH_ROLLBACK = "withRollback" + UUID.randomUUID().toString()
+        val TX_WITH_COMMIT = "surroundingTxWithCommit" + UUID.randomUUID().toString()
+        val TX_WITH_ROLLBACK = "surroundingTxWithRollback" + UUID.randomUUID().toString()
+        val WITH_COMMIT_COMMIT = "noSurroundingTxWithCommit" + UUID.randomUUID().toString()
+        val WITH_COMMIT_ROLLBACK = "NoSurroundingTxWithRollback" + UUID.randomUUID().toString()
     }
 }

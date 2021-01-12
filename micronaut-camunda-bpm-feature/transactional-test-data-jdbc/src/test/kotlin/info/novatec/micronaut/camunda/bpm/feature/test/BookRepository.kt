@@ -9,6 +9,6 @@ import io.micronaut.data.repository.CrudRepository
  *
  * @author Tobias Schäfer
  */
-@JdbcRepository(dialect = Dialect.H2) interface BookRepository : CrudRepository<Book, Long> {
+@JdbcRepository(dialect = Dialect.POSTGRES) interface BookRepository : CrudRepository<Book, Long> {
     fun countByTitle(title: String): Long
 }

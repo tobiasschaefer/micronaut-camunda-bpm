@@ -25,7 +25,7 @@ public class DefaultPropertySourceLoader implements PropertySourceLoader, Ordere
      */
     protected static final int POSITION = Ordered.LOWEST_PRECEDENCE;
 
-    protected static final int MAXIMUM_POOL_SIZE = 100;
+    protected static final int MAXIMUM_POOL_SIZE = 90;
 
     @Override
     public int getOrder() {

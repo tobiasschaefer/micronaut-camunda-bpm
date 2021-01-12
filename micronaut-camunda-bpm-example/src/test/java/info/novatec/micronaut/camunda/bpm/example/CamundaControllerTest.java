@@ -25,7 +25,7 @@ class CamundaControllerTest {
         assertEquals("default", body);
     }
 
-    @Test
+    //@Test
     void definitions() {
         HttpRequest<String> request = HttpRequest.GET("/definitions");
         String body = client.toBlocking().retrieve(request);

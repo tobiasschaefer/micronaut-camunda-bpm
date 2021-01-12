@@ -23,7 +23,7 @@ class DefaultPropertySourceLoaderTest {
 
         @Test
         fun `default value`() {
-            assertEquals(100,
+            assertEquals(90,
                     applicationContext.environment.getProperty("datasources.default.maximum-pool-size", Int::class.java).get())
         }
     }

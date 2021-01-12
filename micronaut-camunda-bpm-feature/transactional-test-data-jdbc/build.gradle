@@ -16,7 +16,8 @@ micronaut {
 dependencies {
     testImplementation(project(":micronaut-camunda-bpm-feature"))
     testImplementation(project(":micronaut-camunda-bpm-feature").sourceSets.test.output)
-    testRuntimeOnly("com.h2database:h2")
+    //testRuntimeOnly("com.h2database:h2")
+    runtimeOnly "org.postgresql:postgresql:42.2.18"
 
     kaptTest(platform("io.micronaut:micronaut-bom:$micronautVersion"))
     kaptTest("io.micronaut.data:micronaut-data-processor")
