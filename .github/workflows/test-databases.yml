@@ -46,4 +46,4 @@ jobs:
           DATASOURCES_DEFAULT_USERNAME: postgres
           DATASOURCES_DEFAULT_PASSWORD: postgres
           DATASOURCES_DEFAULT_DRIVER_CLASS_NAME: org.postgresql.Driver
-        run: ./gradlew build --warning-mode=fail
+        run: ./gradlew build --warning-mode=fail --no-parallel
