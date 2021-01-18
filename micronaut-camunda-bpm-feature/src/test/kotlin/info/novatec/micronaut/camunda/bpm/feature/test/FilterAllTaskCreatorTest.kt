@@ -2,19 +2,21 @@ package info.novatec.micronaut.camunda.bpm.feature.test
 
 import info.novatec.micronaut.camunda.bpm.feature.Configuration
 import info.novatec.micronaut.camunda.bpm.feature.FilterAllTaskCreator
+import io.micronaut.context.annotation.Property
 import io.micronaut.runtime.server.EmbeddedServer
 import io.micronaut.runtime.server.event.ServerStartupEvent
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
-import io.micronaut.test.support.TestPropertyProvider
 import org.camunda.bpm.engine.ProcessEngine
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.mockito.Mockito
+import org.mockito.Mockito.mock
 import java.util.*
 import javax.inject.Inject
 
+/**
+ * @author Martin Sawilla
+ */
 class FilterAllTaskCreatorTest {
 
     @MicronautTest
@@ -28,7 +30,7 @@ class FilterAllTaskCreatorTest {
         lateinit var filterAllTaskCreator: Optional<FilterAllTaskCreator>
 
         @Test
-        fun `no filter gets created` () {
+        fun `filter is not created` () {
             assertFalse(filterAllTaskCreator.isPresent)
             assertEquals(0, processEngine.filterService.createFilterQuery().list().size)
         }
@@ -36,14 +38,9 @@ class FilterAllTaskCreatorTest {
     }
 
     @MicronautTest
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @Property(name = "camunda.bpm.filter.create", value = "Custom Filter")
     @Nested
-    inner class Filter : TestPropertyProvider {
-        override fun getProperties(): MutableMap<String, String> {
-            return mutableMapOf(
-                "camunda.bpm.filter.create" to "Custom Filter"
-            )
-        }
+    inner class Filter {
 
         @Inject
         lateinit var processEngine: ProcessEngine
@@ -55,7 +52,7 @@ class FilterAllTaskCreatorTest {
         lateinit var configuration: Configuration
 
         @Test
-        fun `filter created` () {
+        fun `filter is created` () {
             assertTrue(filterAllTaskCreator.isPresent)
             triggerServerStartupEvent(filterAllTaskCreator.get())
             assertEquals("Custom Filter", configuration.filter.create.get())
@@ -68,8 +65,6 @@ class FilterAllTaskCreatorTest {
      * Provide method to trigger event manually because we don't have an application in the feature project to fire the event
      */
     fun triggerServerStartupEvent(filterAllTaskCreator: FilterAllTaskCreator) {
-        filterAllTaskCreator.onApplicationEvent(ServerStartupEvent(Mockito.mock(EmbeddedServer::class.java)))
+        filterAllTaskCreator.onApplicationEvent(ServerStartupEvent(mock(EmbeddedServer::class.java)))
     }
-
-
 }

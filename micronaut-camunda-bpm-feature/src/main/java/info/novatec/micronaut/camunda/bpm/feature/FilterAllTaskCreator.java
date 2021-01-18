@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
-import java.util.Optional;
+
 /**
  * Create a simple "show all" filter if {@code camunda.bpm.filter.create} property is present.
  *
@@ -37,7 +37,7 @@ public class FilterAllTaskCreator implements ApplicationEventListener<ServerStar
         if (filter == null) {
             filter = processEngine.getFilterService().newTaskFilter(filterName);
             processEngine.getFilterService().saveFilter(filter);
-            log.info("Created new task filter: " + filterName);
+            log.info("Created new task filter: {}", filterName);
         }
     }
 }
