@@ -10,14 +10,14 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import io.micronaut.test.support.TestPropertyProvider
 import org.eclipse.jetty.server.Server
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import javax.inject.Inject
 
 /**
- * Test REST API on Jetty.
+ * Test the customized REST API on Jetty.
  *
  * @author Martin Sawilla
  */
@@ -31,10 +31,10 @@ class JettyRestCustomConfigurationTest : TestPropertyProvider {
             "camunda.bpm.rest.context-path" to "/custom-rest-path",
             "camunda.bpm.rest.basic-auth-enabled" to "true",
             "camunda.bpm.admin-user.id" to "admin",
-            "camunda.bpm.admin-user.password" to "password",
-            "camunda.bpm.admin-user.firstname" to "Firstname",
-            "camunda.bpm.admin-user.lastname" to "Lastname",
-            "camunda.bpm.admin-user.email" to "admin@admin.de"
+            "camunda.bpm.admin-user.password" to "admin",
+            "camunda.bpm.admin-user.firstname" to "Donald",
+            "camunda.bpm.admin-user.lastname" to "Duck",
+            "camunda.bpm.admin-user.email" to "donald@duck.com",
         )
     }
 
@@ -67,10 +67,10 @@ class JettyRestCustomConfigurationTest : TestPropertyProvider {
     fun `test basic authentication with user profile`() {
         val request: MutableHttpRequest<String> =
             HttpRequest.GET(configuration.rest.contextPath + "/user/admin/profile")
-        request.basicAuth("admin", "password")
+        request.basicAuth("admin", "admin")
         val body = client.toBlocking().retrieve(request)
 
         assertEquals(
-            """{"id":"admin","firstName":"Firstname","lastName":"Lastname","email":"admin@admin.de"}""", body)
+            """{"id":"admin","firstName":"Donald","lastName":"Duck","email":"donald@duck.com"}""", body)
     }
 }

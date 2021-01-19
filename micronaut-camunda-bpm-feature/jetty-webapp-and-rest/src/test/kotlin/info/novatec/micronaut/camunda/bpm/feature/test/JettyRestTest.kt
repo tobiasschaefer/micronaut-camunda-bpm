@@ -7,12 +7,12 @@ import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.eclipse.jetty.server.Server
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
 
 /**
- * Simple Test to check if the REST API runs.
+ * Test the REST API on Jetty.
  *
  * @author Martin Sawilla
  */
@@ -33,6 +33,6 @@ class JettyRestTest {
         val request: HttpRequest<String> = HttpRequest.GET(configuration.rest.contextPath + "/engine")
         val body = client.toBlocking().retrieve(request)
 
-        Assertions.assertEquals("""[{"name":"default"}]""", body)
+        assertEquals("""[{"name":"default"}]""", body)
     }
 }

@@ -184,11 +184,11 @@ public String startHelloWorldProcess() {
     return runtimeService.startProcessInstanceByKey("HelloWorld").getId();
 }
 ```
-## REST API and Webapps
+## Camunda REST API and Webapps
 
-Currently, we support the REST API and Webapps (Cockpit, Task list, and Admin) on the Server Runtime Jetty. 
+Currently, the Camunda REST API and Webapps (Cockpit, Task list, and Admin) are only supported on the server runtime Jetty. 
 
-To use them in your project, you have to set the `micronaut runtime` of your project to `jetty`, e.g.
+To use them in your project, you have to set the micronaut runtime of your project to `jetty`, e.g.
 
 micronaut-gradle-plugin configuration in build.gradle:
 ```groovy
@@ -206,7 +206,7 @@ micronaut-maven-plugin configuration in pom.xml:
 </properties>
 ```
 
-By default, REST and the Webapps are not enabled. You have to configure them e.g. in an application.yaml as follows:
+By default, REST API and the Webapps are not enabled. You have to configure them e.g. in the application.yaml as follows:
 
 ```yaml
 camunda:
@@ -221,7 +221,7 @@ Further Information:
 * The Webapps are by default available at `/camunda`. By default, `/` will redirect you there.
 * The REST API is by default available at `/engine-rest`, e.g. to get the engine name use `GET /engine-rest/engine`.
 * See [Configuration Properties](#properties) on how to enable basic authentication for REST, create a default user, or disable the redirect.
-* The enabling of the REST API or the Webapps impacts the startup time. Depending on your hardware it increases by around 400-1000 milliseconds.
+* Enabling the REST API or the Webapps impacts the startup time. Depending on your hardware it increases by around 500-1000 milliseconds.
 
 ## Configuration
 

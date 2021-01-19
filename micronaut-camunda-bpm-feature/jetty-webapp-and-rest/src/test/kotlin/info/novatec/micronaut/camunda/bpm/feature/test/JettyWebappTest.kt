@@ -9,11 +9,12 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.eclipse.jetty.server.Server
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
 
 /**
- * Simple Test to check if the Webapps run.
+ * Test the Webapps on Jetty.
  *
  * @author Martin Sawilla
  */
@@ -28,40 +29,40 @@ class JettyWebappTest {
     @Inject
     lateinit var configuration: Configuration
 
-    @Test()
+    @Test
     fun redirect() {
         val request: HttpRequest<String> = HttpRequest.GET("/")
         val res: HttpResponse<*> = client.toBlocking().exchange<String, Any>(request)
-        Assertions.assertEquals(200, res.status().code)
-        Assertions.assertEquals("text/html", res.header("Content-Type"))
+        assertEquals(200, res.status().code)
+        assertEquals("text/html", res.header("Content-Type"))
     }
 
     @Test
     fun welcome() {
         val request: HttpRequest<String> = HttpRequest.GET(configuration.webapps.contextPath + "/app/welcome/default")
         val res: HttpResponse<*> = client.toBlocking().exchange<String, Any>(request)
-        Assertions.assertEquals(200, res.status().code)
+        assertEquals(200, res.status().code)
     }
 
     @Test
     fun admin() {
         val request: HttpRequest<String> = HttpRequest.GET(configuration.webapps.contextPath + "/app/admin/default")
         val res: HttpResponse<*> = client.toBlocking().exchange<String, Any>(request)
-        Assertions.assertEquals(200, res.status().code)
+        assertEquals(200, res.status().code)
     }
 
     @Test
     fun cockpit() {
         val request: HttpRequest<String> = HttpRequest.GET(configuration.webapps.contextPath + "/app/cockpit/default")
         val res: HttpResponse<*> = client.toBlocking().exchange<String, Any>(request)
-        Assertions.assertEquals(200, res.status().code)
+        assertEquals(200, res.status().code)
     }
 
     @Test
     fun tasklist() {
         val request: HttpRequest<String> = HttpRequest.GET(configuration.webapps.contextPath + "/app/tasklist/default")
         val res: HttpResponse<*> = client.toBlocking().exchange<String, Any>(request)
-        Assertions.assertEquals(200, res.status().code)
+        assertEquals(200, res.status().code)
     }
 }
 

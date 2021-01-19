@@ -16,10 +16,10 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import javax.annotation.Nonnull
 import javax.inject.Inject
+
 /**
- * Simple Test to check if the Webapps run with a custom configuration.
+ * Test the customized Webapps on Jetty.
  *
  * @author Martin Sawilla
  */
@@ -32,7 +32,7 @@ class JettyWebappCustomConfigurationTest : TestPropertyProvider {
         return mutableMapOf(
             "camunda.bpm.webapps.context-path" to "/custom-webapp-path",
             "camunda.bpm.webapps.index-redirect-enabled" to "false",
-            "camunda.bpm.rest.context-path" to "/custom-rest-path"
+            "camunda.bpm.rest.context-path" to "/custom-rest-path",
         )
     }
 
@@ -43,7 +43,7 @@ class JettyWebappCustomConfigurationTest : TestPropertyProvider {
     @field:Client("/")
     lateinit var client: RxHttpClient
 
-    @Test()
+    @Test
     fun `redirect is disabled by application configuration`() {
         val request: HttpRequest<String> = HttpRequest.GET("/")
         assertThrows(HttpClientResponseException::class.java) {

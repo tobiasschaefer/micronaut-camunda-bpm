@@ -37,7 +37,7 @@ import static javax.servlet.DispatcherType.*;
 /**
  * Using Micronaut Servlet with Jetty to run the REST API as a servlet.
  *
- * https://micronaut-projects.github.io/micronaut-servlet/1.0.x/guide/#jetty
+ * see https://micronaut-projects.github.io/micronaut-servlet/1.0.x/guide/#jetty
  *
  * @author Martin Sawilla
  */

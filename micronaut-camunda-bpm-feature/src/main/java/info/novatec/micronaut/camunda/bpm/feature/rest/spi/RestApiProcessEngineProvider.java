@@ -7,7 +7,7 @@ import org.camunda.bpm.engine.rest.spi.ProcessEngineProvider;
 import java.util.Set;
 
 /**
- * This class is for wiring of the REST API and the process engine.
+ * This class wires the REST API and the process engine.
  *
  * See also https://docs.camunda.org/manual/current/reference/rest/overview/embeddability/
  *
