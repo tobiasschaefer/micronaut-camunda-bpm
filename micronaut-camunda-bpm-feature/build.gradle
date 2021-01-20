@@ -5,7 +5,6 @@ plugins {
     id("org.jetbrains.kotlin.kapt")
     id("org.jetbrains.kotlin.plugin.allopen")
     id("maven-publish")
-    id("signing")
 }
 
 group = "info.novatec"
@@ -113,19 +112,8 @@ publishing {
         }
     }
     repositories {
-        maven {
-            url = version.endsWith('SNAPSHOT') ? 'https://oss.sonatype.org/content/repositories/snapshots/' : 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-            credentials {
-                username 'micronaut-camunda'
-                password "$System.env.OSSRH_PWD"
-            }
-        }
+        mavenLocal()
     }
-}
-
-// see https://docs.gradle.org/current/userguide/signing_plugin.html#sec:specifying_what_to_sign and https://central.sonatype.org/pages/working-with-pgp-signatures.html#generating-a-key-pair
-signing {
-    sign publishing.publications.mavenJava
 }
 
 configurations {
