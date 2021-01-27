@@ -9,7 +9,9 @@ import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.servlet.jetty.JettyServer;
 import io.micronaut.servlet.tomcat.TomcatServer;
 import io.micronaut.servlet.undertow.UndertowServer;
+import org.apache.catalina.util.ServerInfo;
 import org.camunda.bpm.engine.impl.telemetry.dto.ApplicationServer;
+import org.eclipse.jetty.util.Jetty;
 
 import javax.inject.Singleton;
 import java.util.Map;
@@ -32,29 +34,27 @@ public class ApplicationServerFactory {
     }
 
     @Singleton
-    @Requires(classes = {io.micronaut.http.server.netty.NettyHttpServer.class, io.netty.util.Version.class})
+    @Requires(classes = {NettyHttpServer.class, io.netty.util.Version.class})
     public ApplicationServer nettyServerInfo() {
         assertEmbeddedServerIsActive(NettyHttpServer.class);
-        if (io.netty.util.Version.identify().size() > 0) {
-            Map.Entry<String, io.netty.util.Version> version = io.netty.util.Version.identify().entrySet().iterator().next();
-            return new ApplicationServer(version.toString().replaceFirst("-.+-", "-"));
-        } else {
-            throw new DisabledBeanException("Version information is not available for Netty.");
-        }
+        return io.netty.util.Version.identify().entrySet().stream()
+                .min(Map.Entry.comparingByKey())
+                .map(entry -> new ApplicationServer("netty-" + entry.getValue().artifactVersion()))
+                .orElseThrow(() -> new DisabledBeanException("Version information is not available for Netty."));
     }
 
     @Singleton
-    @Requires(classes = {JettyServer.class, org.eclipse.jetty.util.Jetty.class})
+    @Requires(classes = {JettyServer.class, Jetty.class})
     public ApplicationServer jettyServerInfo() {
         assertEmbeddedServerIsActive(JettyServer.class);
-        return new ApplicationServer("jetty/" + org.eclipse.jetty.util.Jetty.VERSION);
+        return new ApplicationServer("jetty/" + Jetty.VERSION);
     }
 
     @Singleton
-    @Requires(classes = {TomcatServer.class, org.apache.catalina.util.ServerInfo.class})
+    @Requires(classes = {TomcatServer.class, ServerInfo.class})
     public ApplicationServer tomcatServerInfo() {
         assertEmbeddedServerIsActive(TomcatServer.class);
-        return new ApplicationServer(org.apache.catalina.util.ServerInfo.getServerInfo());
+        return new ApplicationServer(ServerInfo.getServerInfo());
     }
 
     @Singleton
