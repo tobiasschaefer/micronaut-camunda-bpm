@@ -9,15 +9,15 @@ import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.servlet.jetty.JettyServer;
 import io.micronaut.servlet.tomcat.TomcatServer;
 import io.micronaut.servlet.undertow.UndertowServer;
-import io.netty.util.Version;
 import org.camunda.bpm.engine.impl.telemetry.dto.ApplicationServer;
 
 import javax.inject.Singleton;
+import java.util.Map;
 import java.util.Optional;
 
 /**
  * Bean factory for {@link ApplicationServer} containing the embedded server version.
- *
+ * <p>
  * Note: We're not using javax.servlet.ServletContainerInitializer to not rely on micronaut-servlet and therefore
  * minimize dependencies.
  *
@@ -32,14 +32,14 @@ public class ApplicationServerFactory {
     }
 
     @Singleton
-    @Requires(classes = io.micronaut.http.server.netty.NettyHttpServer.class)
+    @Requires(classes = {io.micronaut.http.server.netty.NettyHttpServer.class, io.netty.util.Version.class})
     public ApplicationServer nettyServerInfo() {
         assertEmbeddedServerIsActive(NettyHttpServer.class);
-        Version version = Version.identify().get("netty-common");
-        if (version == null) {
-            throw new DisabledBeanException("Version information is not available for Netty.");
+        if (io.netty.util.Version.identify().size() > 0) {
+            Map.Entry<String, io.netty.util.Version> version = io.netty.util.Version.identify().entrySet().iterator().next();
+            return new ApplicationServer(version.toString().replaceFirst("-.+-", "-"));
         } else {
-            return new ApplicationServer(version.toString().replace("-common-", "-"));
+            throw new DisabledBeanException("Version information is not available for Netty.");
         }
     }
 
