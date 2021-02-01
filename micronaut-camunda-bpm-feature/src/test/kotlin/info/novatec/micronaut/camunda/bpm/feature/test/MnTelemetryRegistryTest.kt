@@ -28,6 +28,7 @@ import javax.inject.Inject
  * @author Tobias Schäfer
  */
 @MicronautTest
+//open
 class MnTelemetryRegistryTest {
 
     @Inject
