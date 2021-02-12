@@ -1,17 +1,21 @@
 package info.novatec.micronaut.camunda.bpm.feature;
 
+import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.core.annotation.AnnotationMetadata;
+import io.micronaut.core.io.scan.DefaultClassPathResourceLoader;
+import io.micronaut.inject.BeanDefinition;
+import io.micronaut.inject.qualifiers.Qualifiers;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.ProcessEngineConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * @author Tobias Schäfer
@@ -23,23 +27,31 @@ public class ProcessEngineFactory {
 
     private static final Logger log = LoggerFactory.getLogger(ProcessEngineFactory.class);
 
+    private final ApplicationContext applicationContext;
+
+    public ProcessEngineFactory(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
     /**
      * The {@link ProcessEngine} is started with the application start so that the task scheduler is started immediately.
      *
      * @param processEngineConfiguration the {@link ProcessEngineConfiguration} to build the {@link ProcessEngine}.
      * @param camundaBpmVersion the @{@link CamundaBpmVersion} to log on application start.
+     * @param defaultClassPathResourceLoader hello
      * @return the initialized {@link ProcessEngine} in the application context.
      * @throws IOException if a resource, i.e. a model, cannot be loaded.
      */
     @Context
     @Bean(preDestroy = "close")
-    public ProcessEngine processEngine(ProcessEngineConfiguration processEngineConfiguration, CamundaBpmVersion camundaBpmVersion) throws IOException {
+    public ProcessEngine processEngine(ProcessEngineConfiguration processEngineConfiguration, CamundaBpmVersion camundaBpmVersion, DefaultClassPathResourceLoader defaultClassPathResourceLoader
+    ) throws IOException {
 
         log.info("Camunda BPM version: {}", camundaBpmVersion.getVersion().orElse(""));
 
         ProcessEngine processEngine = processEngineConfiguration.buildProcessEngine();
 
-        deployProcessModels(processEngine);
+        deployProcessModels(processEngine, defaultClassPathResourceLoader);
 
         return processEngine;
     }
@@ -50,21 +62,26 @@ public class ProcessEngineFactory {
      * Note: Currently this is not recursive!
      *
      * @param processEngine the {@link ProcessEngine}
+     * @param defaultClassPathResourceLoader hello
      * @throws IOException if a resource, i.e. a model, cannot be loaded.
      */
-    protected void deployProcessModels(ProcessEngine processEngine) throws IOException {
-        log.info("Searching non-recursively for models in the resources");
-        PathMatchingResourcePatternResolver resourceLoader = new PathMatchingResourcePatternResolver();
-        // Order of extensions has been chosen as a best fit for inter process dependencies.
-        for (String extension : Arrays.asList("dmn", "cmmn", "bpmn")) {
-            for (Resource resource : resourceLoader.getResources(PathMatchingResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + "*." + extension)) {
-                log.info("Deploying model: {}", resource.getFilename());
+    private void deployProcessModels(ProcessEngine processEngine, DefaultClassPathResourceLoader defaultClassPathResourceLoader) throws IOException {
+        log.info("Deploying models from the resources");
+
+        Collection<BeanDefinition<?>> definitions =  applicationContext.getBeanDefinitions(Qualifiers.byStereotype(ResourceScan.class));
+        for(BeanDefinition definition : definitions) {
+            log.info(String.valueOf(definitions.size()));
+            AnnotationMetadata annotationMetadata = definition.getAnnotationMetadata();
+            log.info(String.valueOf("String Value: " + Arrays.toString(annotationMetadata.stringValues(ResourceScan.class, "models"))));
+            log.info("Members: " + (annotationMetadata.getAnnotation(ResourceScan.class)).getMemberNames());
+            Arrays.stream(annotationMetadata.stringValues(ResourceScan.class, "models")).forEach(model -> {
+                log.info("Deploying model: {}", model);
                 processEngine.getRepositoryService().createDeployment()
                         .name(MICRONAUT_AUTO_DEPLOYMENT_NAME)
-                        .addInputStream(resource.getFilename(), resource.getInputStream())
+                        .addInputStream(model, defaultClassPathResourceLoader.getResourceAsStream(model).get())
                         .enableDuplicateFiltering(true)
                         .deploy();
-            }
+            });
         }
     }
 }

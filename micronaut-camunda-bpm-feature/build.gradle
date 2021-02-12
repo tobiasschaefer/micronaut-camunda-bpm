@@ -36,7 +36,18 @@ dependencies {
 
     kaptTest platform("io.micronaut:micronaut-bom:$micronautVersion")
     kaptTest("io.micronaut.data:micronaut-data-processor")
-    kapt("io.micronaut:micronaut-inject-java:$micronautVersion")
+    kaptTest("io.micronaut:micronaut-inject-java")
+
+    //annotationProcessor ("io.micronaut:micronaut-inject-java")
+
+    implementation("io.micronaut:micronaut-inject-java")
+
+
+   // implementation ("io.micronaut:micronaut-runtime")
+   // implementation ("io.micronaut:micronaut-management")
+   // annotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
+   // annotationProcessor("info.novatec:micronaut-camunda-bpm-feature:$version")
+   // annotationProcessor(":micronaut-camunda-bpm-feature:0.9.0")
 
     // Integration of Transaction Management
     api("io.micronaut.data:micronaut-data-tx")

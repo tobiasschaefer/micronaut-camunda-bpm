@@ -19,6 +19,11 @@ dependencies {
     runtimeOnly("com.h2database:h2")
     runtimeOnly("ch.qos.logback:logback-classic")
 
+    annotationProcessor project(":micronaut-camunda-bpm-feature")
+    //annotationProcessor "io.micronaut:micronaut-inject-java"
+    //annotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
+    //annotationProcessor("info.novatec:micronaut-camunda-bpm-feature:$version")
+
     // Test
     testImplementation("io.micronaut:micronaut-http-client")
 

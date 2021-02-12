@@ -12,6 +12,7 @@ import org.camunda.bpm.engine.repository.ResourceDefinition;
 import java.util.stream.Collectors;
 
 @Controller("/example")
+//@ResourceScan
 public class CamundaController {
 
     private final ProcessEngine processEngine;
