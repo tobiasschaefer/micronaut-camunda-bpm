@@ -5,10 +5,8 @@ import io.micronaut.inject.visitor.TypeElementVisitor;
 import io.micronaut.inject.visitor.VisitorContext;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,6 +41,7 @@ public class ResourceScanVisitor implements TypeElementVisitor<ResourceScan, Obj
                     .map( p -> resourcesRoot.relativize(p).toString())
                     .collect(Collectors.toList());
             //Path fileFilenames = Paths.get(projectDir.toString(), "build/resources/main", "mn.txt");
+            /*
             Path fileFilenames = Paths.get(projectDir.toString(), "src/main/resources", "mn.txt");
             fileFilenames.getParent().toFile().mkdirs();
             try {
@@ -50,6 +49,7 @@ public class ResourceScanVisitor implements TypeElementVisitor<ResourceScan, Obj
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            */
 
             //context.addGeneratedResource(file.getFileName().toString());
 

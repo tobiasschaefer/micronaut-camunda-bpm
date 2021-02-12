@@ -57,9 +57,7 @@ public class ProcessEngineFactory {
     }
 
     /**
-     * Deploys all process models found in root directory of the resources.
-     * <p>
-     * Note: Currently this is not recursive!
+     * Deploys all process models found in the resources.
      *
      * @param processEngine the {@link ProcessEngine}
      * @param defaultClassPathResourceLoader hello
@@ -69,8 +67,8 @@ public class ProcessEngineFactory {
         log.info("Deploying models from the resources");
 
         Collection<BeanDefinition<?>> definitions =  applicationContext.getBeanDefinitions(Qualifiers.byStereotype(ResourceScan.class));
+        log.info(String.valueOf(definitions.size()));
         for(BeanDefinition definition : definitions) {
-            log.info(String.valueOf(definitions.size()));
             AnnotationMetadata annotationMetadata = definition.getAnnotationMetadata();
             log.info(String.valueOf("String Value: " + Arrays.toString(annotationMetadata.stringValues(ResourceScan.class, "models"))));
             log.info("Members: " + (annotationMetadata.getAnnotation(ResourceScan.class)).getMemberNames());
