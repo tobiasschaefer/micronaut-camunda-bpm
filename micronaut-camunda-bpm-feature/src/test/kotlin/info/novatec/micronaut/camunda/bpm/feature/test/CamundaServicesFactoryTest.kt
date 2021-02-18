@@ -21,9 +21,6 @@ class CamundaServicesFactoryTest {
     lateinit var authorizationService: AuthorizationService
 
     @Inject
-    lateinit var caseService: CaseService
-
-    @Inject
     lateinit var decisionService: DecisionService
 
     @Inject
@@ -50,7 +47,6 @@ class CamundaServicesFactoryTest {
         assertNotNull(repositoryService)
         assertNotNull(managementService)
         assertNotNull(authorizationService)
-        assertNotNull(caseService)
         assertNotNull(decisionService)
         assertNotNull(externalTaskService)
         assertNotNull(filterService)
