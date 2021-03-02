@@ -295,25 +295,32 @@ Further Information:
 * Enabling the REST API or the Webapps impacts the startup time. Depending on your hardware it increases by around 500-1000 milliseconds.
 
 ## Add Process Engine Plugins
-Every bean that implements the interface `ProcessEnginePlugin` gets automatically added to the process engine on start.
-To add your plugin you just need to annotate it with `@Singleton`. Here is an example for a `DoNothingPlugin`.
+Every bean that implements the interface `ProcessEnginePlugin` gets automatically added to the process engine on start:
 
 ```java
+import io.micronaut.context.annotation.Factory;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
+
 import javax.inject.Singleton;
 
-@Singleton
-public class DoNothingPlugin implements ProcessEnginePlugin {
-  @Override
-  public void preInit(ProcessEngineConfigurationImpl processEngineConfiguration) {}
+@Factory
+public class MyPluginFactory {
 
-  @Override
-  public void postInit(ProcessEngineConfigurationImpl processEngineConfiguration) {}
+  @Singleton
+  ProcessEnginePlugin myplugin () {
+    return new ProcessEnginePlugin() {
+      @Override
+      public void preInit(ProcessEngineConfigurationImpl processEngineConfiguration) {}
 
-  @Override
-  public void postProcessEngineBuild(ProcessEngine processEngine) {}
+      @Override
+      public void postInit(ProcessEngineConfigurationImpl processEngineConfiguration) {}
+
+      @Override
+      public void postProcessEngineBuild(ProcessEngine processEngine) {}
+    };
+  }
 }
 ```
 

@@ -16,9 +16,12 @@
 package info.novatec.micronaut.camunda.bpm.feature.test
 
 import info.novatec.micronaut.camunda.bpm.feature.MnProcessEngineConfiguration
+import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
+import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.mock
 import javax.inject.Inject
 
 /**
@@ -31,10 +34,14 @@ class ProcessEnginePluginsTest {
     @Inject
     lateinit var processEngineConfiguration: MnProcessEngineConfiguration
 
+    @MockBean(ProcessEnginePlugin::class)
+    fun myplugin(): ProcessEnginePlugin {
+        return mock(ProcessEnginePlugin::class.java)
+    }
+
     @Test
-    fun `check that DoNothingPlugin is automatically loaded` () {
+    fun `check that plugins are automatically loaded` () {
         val plugins = processEngineConfiguration.processEnginePlugins
         assertEquals(1, plugins.size)
-        assertEquals(DoNothingProcessEnginePlugin::class.java, plugins[0].javaClass)
     }
 }
