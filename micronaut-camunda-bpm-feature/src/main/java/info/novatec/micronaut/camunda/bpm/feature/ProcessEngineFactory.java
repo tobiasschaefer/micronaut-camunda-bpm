@@ -43,12 +43,13 @@ public class ProcessEngineFactory {
      * The {@link ProcessEngine} is started with the application start so that the task scheduler is started immediately.
      * @param processEngineConfiguration the {@link ProcessEngineConfiguration} to build the {@link ProcessEngine}.
      * @param camundaVersion the @{@link CamundaVersion} to log on application start.
+     * @param processApplication the @{@link MnProcessApplication}
      * @return the initialized {@link ProcessEngine} in the application context.
      * @throws IOException if a resource, i.e. a model, cannot be loaded.
      */
     @Context
     @Bean(preDestroy = "close")
-    public ProcessEngine processEngine(ProcessEngineConfiguration processEngineConfiguration, CamundaVersion camundaVersion) throws IOException {
+    public ProcessEngine processEngine(ProcessEngineConfiguration processEngineConfiguration, CamundaVersion camundaVersion, MnProcessApplication processApplication) throws IOException {
 
         if (camundaVersion.getVersion().isPresent()) {
             log.info("Camunda version: {}", camundaVersion.getVersion().get());
@@ -58,7 +59,7 @@ public class ProcessEngineFactory {
 
         ProcessEngine processEngine = processEngineConfiguration.buildProcessEngine();
 
-        deployProcessModels(processEngine);
+        deployProcessModels(processEngine, processApplication);
 
         return processEngine;
     }
@@ -69,13 +70,14 @@ public class ProcessEngineFactory {
      * Note: Currently this is not recursive!
      *
      * @param processEngine the {@link ProcessEngine}
+     * @param processApplication the @{@link MnProcessApplication}
      * @throws IOException if a resource, i.e. a model, cannot be loaded.
      */
-    protected void deployProcessModels(ProcessEngine processEngine) throws IOException {
+    protected void deployProcessModels(ProcessEngine processEngine, MnProcessApplication processApplication) throws IOException {
         log.info("Searching non-recursively for models in the resources");
         PathMatchingResourcePatternResolver resourceLoader = new PathMatchingResourcePatternResolver();
 
-        DeploymentBuilder builder = processEngine.getRepositoryService().createDeployment()
+        DeploymentBuilder builder = processEngine.getRepositoryService().createDeployment(processApplication.getReference())
                 .name(MICRONAUT_AUTO_DEPLOYMENT_NAME)
                 .enableDuplicateFiltering(true);
 
