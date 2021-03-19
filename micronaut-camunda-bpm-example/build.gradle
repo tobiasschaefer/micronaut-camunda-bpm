@@ -15,6 +15,7 @@ micronaut {
 
 dependencies {
     implementation(project(":micronaut-camunda-bpm-feature"))
+    implementation("org.camunda.bpm.identity:camunda-identity-ldap:$camundaVersion")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("ch.qos.logback:logback-classic")
 
